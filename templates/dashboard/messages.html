@@ -1,0 +1,78 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="db-card">
+    <div class="db-card-header">
+        <div>
+            <div class="db-card-title">Client Inquiries & Contact Messages ({{ contact_messages.count }})</div>
+            <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                Messages submitted by visitors through the website contact form.
+            </div>
+        </div>
+    </div>
+
+    <table class="db-table">
+        <thead>
+            <tr>
+                <th>Sender</th>
+                <th>Subject</th>
+                <th>Message Details</th>
+                <th>Date Received</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in contact_messages %}
+                <tr style="{% if not m.is_read %}background: rgba(208, 255, 113, 0.03);{% endif %}">
+                    <td>
+                        <strong style="color: #fff;">{{ m.name }}</strong>
+                        <div style="font-size: 0.8rem; color: var(--db-accent);">
+                            <a href="mailto:{{ m.email }}" style="color: inherit;">{{ m.email }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <strong style="color: #fff;">{{ m.subject|default:"General Inquiry" }}</strong>
+                    </td>
+                    <td style="max-width: 380px;">
+                        <p style="color: var(--db-text-muted); font-size: 0.88rem; line-height: 1.5;">
+                            {{ m.message }}
+                        </p>
+                    </td>
+                    <td style="font-size: 0.8rem; color: var(--db-text-muted); white-space: nowrap;">
+                        {{ m.created_at|date:"M d, Y" }}<br>
+                        <span style="color: var(--db-text-dim);">{{ m.created_at|date:"h:i A" }}</span>
+                    </td>
+                    <td>
+                        {% if m.is_read %}
+                            <span class="badge badge-gray">Read</span>
+                        {% else %}
+                            <span class="badge badge-lime">● New</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <div style="display: inline-flex; gap: 8px;">
+                            <form action="{% url 'portfolio:dashboard_message_toggle_read' m.pk %}" method="POST" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline btn-sm" title="Toggle read/unread">
+                                    {% if m.is_read %}Mark Unread{% else %}Mark Read ✓{% endif %}
+                                </button>
+                            </form>
+                            <form action="{% url 'portfolio:dashboard_message_delete' m.pk %}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this message?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">✕</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 48px; color: var(--db-text-muted);">
+                        No contact inquiries yet. New messages submitted on your portfolio will appear here immediately.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

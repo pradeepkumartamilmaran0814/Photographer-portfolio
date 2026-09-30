@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px;">
+    <!-- Case Study Hero -->
+    <div class="case-study-hero">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="{% url 'portfolio:projects' %}" class="section-view-all">← Back to All Projects</a>
+            <span class="project-card-badge" style="position: static;">{{ project.category.name|default:"Case Study" }}</span>
+        </div>
+
+        <h1 class="hero-title" style="font-size: clamp(2.8rem, 6vw, 5.5rem); margin-bottom: 20px;">
+            {{ project.title }}
+        </h1>
+        <p class="hero-subtitle" style="max-width: 850px; font-size: 1.3rem;">
+            {{ project.tagline|default:project.short_description }}
+        </p>
+
+        <!-- Project Metadata Grid -->
+        <div class="case-meta-grid">
+            <div class="case-meta-item">
+                <span class="case-meta-label">Client</span>
+                <span class="case-meta-value">{{ project.client|default:"Studio Prism" }}</span>
+            </div>
+            <div class="case-meta-item">
+                <span class="case-meta-label">Year</span>
+                <span class="case-meta-value">{{ project.year|default:"2025" }}</span>
+            </div>
+            <div class="case-meta-item">
+                <span class="case-meta-label">Industry</span>
+                <span class="case-meta-value">{{ project.industry|default:"Tech" }}</span>
+            </div>
+            <div class="case-meta-item">
+                <span class="case-meta-label">Duration</span>
+                <span class="case-meta-value">{{ project.duration|default:"4 weeks" }}</span>
+            </div>
+        </div>
+
+        <!-- Hero Cover Image -->
+        <div class="case-study-image-hero">
+            <img src="{{ project.cover_url }}" alt="{{ project.title }}" style="width: 100%; height: auto; max-height: 650px; object-fit: cover;">
+        </div>
+
+        <!-- Case Study Breakdown -->
+        <div class="case-study-content">
+            <aside>
+                <div class="case-sidebar-title">CASE STUDY<br>BREAKDOWN</div>
+            </aside>
+
+            <div>
+                {% if project.problem %}
+                    <section class="case-section">
+                        <span class="section-label">01 / The Challenge</span>
+                        <h2 class="case-section-title">Problem Statement</h2>
+                        <div class="case-section-p">{{ project.problem|linebreaks }}</div>
+                    </section>
+                {% endif %}
+
+                {% if project.solution %}
+                    <section class="case-section">
+                        <span class="section-label">02 / Execution</span>
+                        <h2 class="case-section-title">Design Solution</h2>
+                        <div class="case-section-p">{{ project.solution|linebreaks }}</div>
+                    </section>
+                {% endif %}
+
+                {% if project.challenge %}
+                    <section class="case-section">
+                        <span class="section-label">03 / Key Hurdles</span>
+                        <h2 class="case-section-title">Technical & Visual Obstacles</h2>
+                        <div class="case-section-p">{{ project.challenge|linebreaks }}</div>
+                    </section>
+                {% endif %}
+
+                {% if project.summary %}
+                    <section class="case-section">
+                        <span class="section-label">04 / Impact</span>
+                        <h2 class="case-section-title">Summary & Results</h2>
+                        <div class="case-section-p">{{ project.summary|linebreaks }}</div>
+                    </section>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Project Gallery Images -->
+        {% if project.gallery_images.all %}
+            <div style="margin-bottom: 40px;">
+                <span class="section-label">Gallery</span>
+                <h2 class="section-title">Visual Assets & Explorations</h2>
+            </div>
+            <div class="gallery-grid">
+                {% for img in project.gallery_images.all %}
+                    <div class="gallery-img-card">
+                        <img src="{{ img.image_url }}" alt="{{ project.title }} exploration" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Related / More Projects -->
+        {% if related_projects %}
+            <div class="section-header" style="margin-top: 80px;">
+                <div>
+                    <span class="section-label">Next Case Studies</span>
+                    <h2 class="section-title">More Projects</h2>
+                </div>
+                <a href="{% url 'portfolio:projects' %}" class="section-view-all">All Projects →</a>
+            </div>
+
+            <div class="projects-grid" style="margin-bottom: 60px;">
+                {% for p in related_projects %}
+                    <article class="project-card">
+                        <a href="{% url 'portfolio:project_detail' p.slug %}" class="project-img-wrapper">
+                            <img src="{{ p.cover_url }}" alt="{{ p.title }}" class="project-img" loading="lazy">
+                            <span class="project-card-badge">{{ p.category.name|default:"Design" }}</span>
+                            <span class="project-card-year">{{ p.year }}</span>
+                        </a>
+                        <div class="project-card-content">
+                            <h3 class="project-card-title">
+                                <a href="{% url 'portfolio:project_detail' p.slug %}">{{ p.title }}</a>
+                            </h3>
+                            <p class="project-card-desc">{{ p.tagline }}</p>
+                            <a href="{% url 'portfolio:project_detail' p.slug %}" class="project-view-arrow">View Case Study →</a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

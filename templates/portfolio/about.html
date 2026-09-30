@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; margin-bottom: 80px;">
+    <!-- About Hero -->
+    <div style="margin-bottom: 60px;">
+        <span class="section-label">Biography</span>
+        <h1 class="hero-title" style="font-size: clamp(3rem, 7vw, 6.5rem); margin-bottom: 24px;">
+            ABOUT THE DESIGNER
+        </h1>
+        <p class="hero-subtitle" style="max-width: 800px; font-size: 1.35rem; line-height: 1.7;">
+            {{ site_settings.bio }}
+        </p>
+        {% if site_settings.resume_file %}
+            <a href="{{ site_settings.resume_file.url }}" download class="btn-primary" style="margin-top: 10px;">
+                Download Resume (PDF) ↓
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Experience Timeline & Skills Grid -->
+    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px; margin-bottom: 100px;">
+        <!-- Work Experience -->
+        <div>
+            <span class="section-label">Track Record</span>
+            <h2 class="section-title" style="font-size: 2.8rem; margin-bottom: 30px;">Work Experience</h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 32px;">
+                {% for exp in experiences %}
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 28px;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                            <h3 style="font-family: var(--font-heading); font-size: 1.5rem; text-transform: uppercase; color: var(--text-primary);">
+                                {{ exp.role }}
+                            </h3>
+                            <span style="font-size: 0.85rem; color: var(--accent-lime); font-weight: 600;">
+                                {{ exp.period }}
+                            </span>
+                        </div>
+                        <div style="font-weight: 500; color: var(--text-secondary); margin-bottom: 12px;">
+                            @ {{ exp.company }}
+                        </div>
+                        <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
+                            {{ exp.description }}
+                        </p>
+                    </div>
+                {% empty %}
+                    <p style="color: var(--text-secondary);">No experience records added yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Skills & Competencies -->
+        <div>
+            <span class="section-label">Toolkit</span>
+            <h2 class="section-title" style="font-size: 2.8rem; margin-bottom: 30px;">Skills & Tools</h2>
+
+            <div class="skills-list" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 36px 30px;">
+                {% for skill in skills %}
+                    <div class="skill-bar-wrapper">
+                        <div class="skill-info">
+                            <span style="color: var(--text-primary);">{{ skill.name }}</span>
+                            <span>{{ skill.proficiency }}%</span>
+                        </div>
+                        <div class="skill-progress-bg">
+                            <div class="skill-progress-fill" style="width: {{ skill.proficiency }}%;"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials -->
+    {% if testimonials %}
+    <section style="margin-bottom: 100px;">
+        <div class="section-header">
+            <div>
+                <span class="section-label">Endorsements</span>
+                <h2 class="section-title">What Clients Say</h2>
+            </div>
+        </div>
+
+        <div class="testimonials-grid">
+            {% for t in testimonials %}
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">“{{ t.quote }}”</p>
+                    <div class="testimonial-author">
+                        {% if t.avatar_url %}
+                            <img src="{{ t.avatar_url }}" alt="{{ t.client_name }}" class="testimonial-avatar">
+                        {% endif %}
+                        <div>
+                            <div class="author-name">{{ t.client_name }}</div>
+                            <div class="author-role">{{ t.client_role }}, {{ t.client_company }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

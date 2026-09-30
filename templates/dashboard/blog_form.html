@@ -1,0 +1,94 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="db-card" style="max-width: 950px; margin: 0 auto;">
+    <div class="db-card-header">
+        <div class="db-card-title">
+            {% if is_edit %}Edit Article: {{ blog.title }}{% else %}Create New Blog Article{% endif %}
+        </div>
+        <a href="{% url 'portfolio:dashboard_blogs' %}" class="btn btn-outline btn-sm">
+            ← Back to Articles
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="db-card-body">
+        {% csrf_token %}
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label class="form-label">Article Title *</label>
+                <input type="text" name="title" required value="{{ blog.title|default:'' }}" class="form-control" placeholder="e.g. 5 Design Trends That Will Define 2024" maxlength="70" data-char-rec="20–55 chars" data-char-hint="Article headline in blog showcase">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-control">
+                    <option value="">-- Select Category --</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if blog.category.id == cat.id %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Author Name</label>
+                <input type="text" name="author" value="{{ blog.author|default:'DigiPorto' }}" class="form-control" placeholder="DigiPorto" maxlength="30" data-char-hint="Author credit">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Read Time</label>
+                <input type="text" name="read_time" value="{{ blog.read_time|default:'5 min read' }}" class="form-control" placeholder="5 min read" maxlength="15" data-char-hint="e.g. 5 min read">
+            </div>
+
+            <div class="form-group" style="justify-content: center;">
+                <label class="form-label">Publishing Status</label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-size: 0.95rem; margin-top: 8px;">
+                    <input type="checkbox" name="is_published" {% if blog.is_published or not is_edit %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--db-accent);">
+                    Published & Visible on Website
+                </label>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Summary / Lead Paragraph</label>
+                <textarea name="summary" rows="2" class="form-control" placeholder="Brief summary of the article..." maxlength="180" data-char-rec="50–140 chars" data-char-hint="Displays in article card preview">{{ blog.summary|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Cover Image Upload -->
+        <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Cover Image</label>
+            <div class="image-upload-box" onclick="document.getElementById('blog_cover_input').click()">
+                <div style="font-size: 1.8rem; margin-bottom: 6px;">🖼️</div>
+                <div style="font-weight: 600; color: #fff; font-size: 0.95rem;">Click to upload article cover image</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">PNG, JPG, WebP up to 10MB</div>
+                <input type="file" id="blog_cover_input" name="cover_image" accept="image/*" style="display: none;">
+                
+                {% if blog.cover_url %}
+                    <div style="margin-top: 14px;">
+                        <span style="font-size: 0.78rem; color: var(--db-text-muted); display: block; margin-bottom: 6px;">Current Image:</span>
+                        <img src="{{ blog.cover_url }}" alt="Preview" class="live-preview-img" id="live-cover-preview">
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Article Content -->
+        <div class="form-group" style="margin-top: 24px;">
+            <label class="form-label">Article Content (Multi-Paragraph)</label>
+            <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-bottom: 8px;">
+                Tip: Separate paragraphs or section titles with empty lines.
+            </div>
+            <textarea name="content" rows="12" class="form-control" style="font-size: 0.95rem; line-height: 1.6;" placeholder="Write your article content here...">{{ blog.content|default:'' }}</textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid var(--db-border); padding-top: 20px;">
+            <a href="{% url 'portfolio:dashboard_blogs' %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-accent">
+                Save Article ✓
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

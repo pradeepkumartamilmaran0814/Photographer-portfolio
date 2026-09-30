@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <span class="section-label">⚡ {{ site_settings.availability_status|default:"Available for Q4 Projects" }}</span>
+        <h1 class="hero-title">{{ site_settings.hero_headline|default:"DIGITAL<br>DESIGNER"|safe }}</h1>
+        <p class="hero-subtitle">{{ site_settings.hero_subheadline }}</p>
+        
+        <div class="hero-actions">
+            <a href="#projects" class="btn-primary">Explore Selected Work ↓</a>
+            <a href="#contact" class="btn-secondary">Start A Project</a>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section style="margin-bottom: 80px;">
+        <div class="section-header">
+            <div>
+                <span class="section-label">Capabilities</span>
+                <h2 class="section-title">What I Can Do For You</h2>
+            </div>
+        </div>
+
+        <div class="services-grid">
+            {% for service in services %}
+                <div class="service-card">
+                    <div class="service-num">{{ service.order_num }}</div>
+                    <h3 class="service-title">{{ service.title }}</h3>
+                    <p class="service-desc">{{ service.description }}</p>
+                </div>
+            {% empty %}
+                <div class="service-card">
+                    <div class="service-num">01</div>
+                    <h3 class="service-title">UI / UX Design</h3>
+                    <p class="service-desc">Crafting intuitive and engaging interfaces for web and mobile products.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Featured Projects Section -->
+    <section id="projects" style="margin-bottom: 80px;">
+        <div class="section-header">
+            <div>
+                <span class="section-label">Portfolio</span>
+                <h2 class="section-title">Selected Projects</h2>
+            </div>
+            <a href="{% url 'portfolio:projects' %}" class="section-view-all">View All ({{ all_projects.count }}) →</a>
+        </div>
+
+        <div class="projects-grid">
+            {% for project in featured_projects %}
+                <article class="project-card">
+                    <a href="{% url 'portfolio:project_detail' project.slug %}" class="project-img-wrapper">
+                        <img src="{{ project.cover_url }}" alt="{{ project.title }}" class="project-img" loading="lazy">
+                        <span class="project-card-badge">{{ project.category.name|default:"Design" }}</span>
+                        <span class="project-card-year">{{ project.year }}</span>
+                    </a>
+                    <div class="project-card-content">
+                        <h3 class="project-card-title">
+                            <a href="{% url 'portfolio:project_detail' project.slug %}">{{ project.title }}</a>
+                        </h3>
+                        <p class="project-card-desc">{{ project.tagline|default:project.short_description }}</p>
+                        <div class="project-card-footer">
+                            <span>Client: <strong>{{ project.client }}</strong></span>
+                            <a href="{% url 'portfolio:project_detail' project.slug %}" class="project-view-arrow">View Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- About Preview Section -->
+    <section style="margin-bottom: 80px;">
+        <div class="about-preview">
+            <div>
+                <span class="section-label">About Me</span>
+                <h2 class="section-title" style="margin-bottom: 20px;">Designing With Purpose & Precision</h2>
+                <p class="about-bio-text">{{ site_settings.bio }}</p>
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <a href="{% url 'portfolio:about' %}" class="btn-primary">Learn More About Me →</a>
+                    {% if site_settings.resume_file %}
+                        <a href="{{ site_settings.resume_file.url }}" download class="btn-secondary">Download CV</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="skills-list">
+                <span class="section-label" style="margin-bottom: 0;">Core Specialties</span>
+                <div class="skill-bar-wrapper">
+                    <div class="skill-info"><span>UI/UX & Product Design</span><span>95%</span></div>
+                    <div class="skill-progress-bg"><div class="skill-progress-fill" style="width: 95%;"></div></div>
+                </div>
+                <div class="skill-bar-wrapper">
+                    <div class="skill-info"><span>Figma & Design Systems</span><span>98%</span></div>
+                    <div class="skill-progress-bg"><div class="skill-progress-fill" style="width: 98%;"></div></div>
+                </div>
+                <div class="skill-bar-wrapper">
+                    <div class="skill-info"><span>Brand Identity & 3D Visuals</span><span>90%</span></div>
+                    <div class="skill-progress-bg"><div class="skill-progress-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="skill-bar-wrapper">
+                    <div class="skill-info"><span>Framer / Web Development</span><span>92%</span></div>
+                    <div class="skill-progress-bg"><div class="skill-progress-fill" style="width: 92%;"></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    {% if testimonials %}
+    <section style="margin-bottom: 80px;">
+        <div class="section-header">
+            <div>
+                <span class="section-label">Endorsements</span>
+                <h2 class="section-title">What Clients Say</h2>
+            </div>
+        </div>
+
+        <div class="testimonials-grid">
+            {% for t in testimonials %}
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">“{{ t.quote }}”</p>
+                    <div class="testimonial-author">
+                        {% if t.avatar_url %}
+                            <img src="{{ t.avatar_url }}" alt="{{ t.client_name }}" class="testimonial-avatar">
+                        {% endif %}
+                        <div>
+                            <div class="author-name">{{ t.client_name }}</div>
+                            <div class="author-role">{{ t.client_role }}, {{ t.client_company }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Latest Blogs Section -->
+    {% if featured_blogs %}
+    <section style="margin-bottom: 100px;">
+        <div class="section-header">
+            <div>
+                <span class="section-label">Insights</span>
+                <h2 class="section-title">Latest Articles</h2>
+            </div>
+            <a href="{% url 'portfolio:blogs' %}" class="section-view-all">All Articles →</a>
+        </div>
+
+        <div class="blogs-grid">
+            {% for blog in featured_blogs %}
+                <article class="blog-card">
+                    <a href="{% url 'portfolio:blog_detail' blog.slug %}" class="blog-img-wrapper">
+                        <img src="{{ blog.cover_url }}" alt="{{ blog.title }}" class="blog-img" loading="lazy">
+                    </a>
+                    <div class="blog-card-content">
+                        <div class="blog-meta">
+                            <span class="blog-cat-badge">{{ blog.category.name|default:"Insights" }}</span>
+                            <span>•</span>
+                            <span>{{ blog.published_date|date:"M d, Y" }}</span>
+                            <span>•</span>
+                            <span>{{ blog.read_time }}</span>
+                        </div>
+                        <h3 class="blog-card-title">
+                            <a href="{% url 'portfolio:blog_detail' blog.slug %}">{{ blog.title }}</a>
+                        </h3>
+                        <p class="blog-card-desc">{{ blog.summary }}</p>
+                        <a href="{% url 'portfolio:blog_detail' blog.slug %}" class="project-view-arrow">Read Article →</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

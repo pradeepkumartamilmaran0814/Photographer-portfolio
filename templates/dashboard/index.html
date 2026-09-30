@@ -1,0 +1,154 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<!-- Quick Stats Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+    <div class="stat-card">
+        <span class="stat-label">Projects</span>
+        <div class="stat-number">{{ projects_count }}</div>
+        <a href="{% url 'portfolio:dashboard_projects' %}" style="font-size: 0.75rem; color: var(--db-accent); text-decoration: none;">Manage Projects →</a>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Services</span>
+        <div class="stat-number">{{ services_count }}</div>
+        <a href="{% url 'portfolio:dashboard_services' %}" style="font-size: 0.75rem; color: var(--db-accent); text-decoration: none;">Manage Services →</a>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Testimonials</span>
+        <div class="stat-number">{{ testimonials_count }}</div>
+        <a href="{% url 'portfolio:dashboard_testimonials' %}" style="font-size: 0.75rem; color: var(--db-accent); text-decoration: none;">Manage Testimonials →</a>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">FAQs</span>
+        <div class="stat-number">{{ faqs_count }}</div>
+        <a href="{% url 'portfolio:dashboard_faqs' %}" style="font-size: 0.75rem; color: var(--db-accent); text-decoration: none;">Manage FAQs →</a>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Blog Posts</span>
+        <div class="stat-number">{{ blogs_count }}</div>
+        <a href="{% url 'portfolio:dashboard_blogs' %}" style="font-size: 0.75rem; color: var(--db-accent); text-decoration: none;">Manage Articles →</a>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Inquiries</span>
+        <div class="stat-number" style="color: var(--db-accent);">{{ messages_count }}</div>
+        <a href="{% url 'portfolio:dashboard_messages' %}" style="font-size: 0.75rem; color: var(--db-text-muted); text-decoration: none;">{{ unread_messages_count }} unread</a>
+    </div>
+</div>
+
+<!-- Recent Projects Card -->
+<div class="db-card">
+    <div class="db-card-header">
+        <div class="db-card-title">Recent Projects</div>
+        <a href="{% url 'portfolio:dashboard_projects' %}" class="btn btn-outline btn-sm">View All ({{ projects_count }}) →</a>
+    </div>
+
+    <table class="db-table">
+        <thead>
+            <tr>
+                <th style="width: 70px;">Cover</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Client</th>
+                <th>Year</th>
+                <th style="text-align: right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in recent_projects %}
+                <tr>
+                    <td>
+                        <img src="{{ p.cover_url }}" alt="{{ p.title }}" class="thumb-preview">
+                    </td>
+                    <td>
+                        <strong style="color: #fff;">{{ p.title }}</strong>
+                        <div style="font-size: 0.78rem; color: var(--db-text-muted);">{{ p.tagline|truncatechars:45 }}</div>
+                    </td>
+                    <td>
+                        <span class="badge badge-lime">{{ p.category.name|default:"Design" }}</span>
+                    </td>
+                    <td>{{ p.client }}</td>
+                    <td>{{ p.year }}</td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'portfolio:dashboard_project_edit' p.pk %}" class="btn btn-outline btn-sm">Edit ✎</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--db-text-muted);">No projects added yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Recent Inquiries & Site Profile Summary -->
+<div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
+    <!-- Recent Messages -->
+    <div class="db-card" style="margin-bottom: 0;">
+        <div class="db-card-header">
+            <div class="db-card-title">Recent Inquiries</div>
+            <a href="{% url 'portfolio:dashboard_messages' %}" class="btn btn-outline btn-sm">All Inquiries →</a>
+        </div>
+        <table class="db-table">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in recent_messages %}
+                    <tr>
+                        <td>
+                            <strong style="color: #fff;">{{ m.name }}</strong>
+                            <div style="font-size: 0.75rem; color: var(--db-text-muted);">{{ m.email }}</div>
+                        </td>
+                        <td>{{ m.subject|default:"General Inquiry"|truncatechars:35 }}</td>
+                        <td style="font-size: 0.78rem; color: var(--db-text-muted);">{{ m.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--db-text-muted);">No messages received yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Active Profile Info -->
+    <div class="db-card" style="margin-bottom: 0;">
+        <div class="db-card-header">
+            <div class="db-card-title">Site Profile</div>
+            <a href="{% url 'portfolio:dashboard_settings' %}" class="btn btn-outline btn-sm">Edit ✎</a>
+        </div>
+        <div class="db-card-body" style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <span class="stat-label">Designer Name</span>
+                <div style="font-weight: 700; color: #fff; font-size: 1.1rem;">{{ site_settings.designer_name }}</div>
+            </div>
+            <div>
+                <span class="stat-label">Headline</span>
+                <div style="color: var(--db-accent); font-weight: 600;">{{ site_settings.hero_headline }}</div>
+            </div>
+            <div>
+                <span class="stat-label">Public Email</span>
+                <div style="color: #fff;">{{ site_settings.email }}</div>
+            </div>
+            <div>
+                <span class="stat-label">Public Phone</span>
+                <div style="color: #fff;">{{ site_settings.phone }}</div>
+            </div>
+            <div>
+                <span class="stat-label">Availability</span>
+                <div style="color: var(--db-accent);">{{ site_settings.availability_status }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

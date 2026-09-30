@@ -1,0 +1,123 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="db-card" style="max-width: 950px; margin: 0 auto;">
+    <div class="db-card-header">
+        <div class="db-card-title">
+            {% if is_edit %}Edit Project: {{ project.title }}{% else %}Create New Project{% endif %}
+        </div>
+        <a href="{% url 'portfolio:dashboard_projects' %}" class="btn btn-outline btn-sm">
+            ← Back to Projects
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="db-card-body">
+        {% csrf_token %}
+
+        <!-- Basic Info -->
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label class="form-label">Project Title *</label>
+                <input type="text" name="title" required value="{{ project.title|default:'' }}" class="form-control" placeholder="e.g. Obsidian Prisms Composition" maxlength="50" data-char-rec="10–35 chars" data-char-hint="Main project showcase title">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-control">
+                    <option value="">-- Select Category --</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if project.category.id == cat.id %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Client Name</label>
+                <input type="text" name="client" value="{{ project.client|default:'Studio Prism' }}" class="form-control" placeholder="e.g. Studio Prism" maxlength="35" data-char-hint="Client or studio name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Year</label>
+                <input type="text" name="year" value="{{ project.year|default:'2025' }}" class="form-control" placeholder="2025" maxlength="10" data-char-hint="e.g. 2025">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Industry</label>
+                <input type="text" name="industry" value="{{ project.industry|default:'Tech' }}" class="form-control" placeholder="e.g. Tech, FinTech, Fashion" maxlength="25" data-char-hint="e.g. Tech, SaaS">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Duration</label>
+                <input type="text" name="duration" value="{{ project.duration|default:'4 weeks' }}" class="form-control" placeholder="4 weeks" maxlength="20" data-char-hint="e.g. 4 weeks, 2 months">
+            </div>
+
+            <div class="form-group" style="justify-content: center;">
+                <label class="form-label">Show on Homepage</label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-size: 0.95rem; margin-top: 8px;">
+                    <input type="checkbox" name="is_featured" {% if project.is_featured or not is_edit %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--db-accent);">
+                    Featured on Homepage Grid
+                </label>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Tagline / Short Summary</label>
+                <textarea name="tagline" rows="2" class="form-control" placeholder="Brief 1-2 sentence description of the project..." maxlength="160" data-char-rec="40–120 chars" data-char-hint="Displays in project card preview">{{ project.tagline|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Cover Image Upload -->
+        <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Cover Image</label>
+            <div class="image-upload-box" onclick="document.getElementById('cover_image_input').click()">
+                <div style="font-size: 1.8rem; margin-bottom: 6px;">📷</div>
+                <div style="font-weight: 600; color: #fff; font-size: 0.95rem;">Click to upload a new project cover image</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">PNG, JPG, WebP up to 10MB</div>
+                <input type="file" id="cover_image_input" name="cover_image" accept="image/*" style="display: none;">
+                
+                {% if project.cover_url %}
+                    <div style="margin-top: 14px;">
+                        <span style="font-size: 0.78rem; color: var(--db-text-muted); display: block; margin-bottom: 6px;">Current Cover Image:</span>
+                        <img src="{{ project.cover_url }}" alt="Preview" class="live-preview-img" id="live-cover-preview">
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Case Study Breakdown -->
+        <div style="margin-top: 32px; border-top: 1px solid var(--db-border); padding-top: 24px;">
+            <div style="font-weight: 700; color: #fff; font-size: 1.1rem; margin-bottom: 16px;">
+                Case Study Breakdown (Optional)
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Problem Statement</label>
+                <textarea name="problem" class="form-control" placeholder="What challenge did the client face?">{{ project.problem|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Design Solution</label>
+                <textarea name="solution" class="form-control" placeholder="How did you solve the problem with design?">{{ project.solution|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Key Challenges</label>
+                <textarea name="challenge" class="form-control" placeholder="Technical or creative hurdles overcome...">{{ project.challenge|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Summary & Results</label>
+                <textarea name="summary" class="form-control" placeholder="Final impact, metrics, or project takeaway...">{{ project.summary|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid var(--db-border); padding-top: 20px;">
+            <a href="{% url 'portfolio:dashboard_projects' %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-accent">
+                Save Project Changes ✓
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

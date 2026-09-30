@@ -1,0 +1,240 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="db-card" style="max-width: 950px; margin: 0 auto;">
+    <div class="db-card-header">
+        <div>
+            <div class="db-card-title">Site Settings & Content</div>
+            <div style="font-size: 0.82rem; color: var(--db-text-muted); margin-top: 4px;">
+                Customize your name, headline, photos, bio, stat numbers, and contact links. All changes sync directly to your live website.
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="db-card-body">
+        {% csrf_token %}
+
+        <!-- 1. Profile & Main Headline -->
+        <div style="font-weight: 700; color: #fff; font-size: 1.05rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--db-accent);">01.</span> Profile & Big Headline
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Designer Full Name</label>
+                <input type="text" name="designer_name" value="{{ settings.designer_name }}" class="form-control" placeholder="e.g. Karthik R" maxlength="30" required>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Displayed above the headline and in the About section</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Site / Brand Title</label>
+                <input type="text" name="site_title" value="{{ settings.site_title }}" class="form-control" placeholder="e.g. Portavia" maxlength="30">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Shown in the browser tab and page header</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Big Headline (Left Word)</label>
+                <input type="text" name="hero_role_1" value="{{ settings.hero_role_1|default:'DIGITAL' }}" class="form-control" placeholder="e.g. DIGITAL or PHOTO" maxlength="15">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">First large text word in the hero section</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Big Headline (Right Word)</label>
+                <input type="text" name="hero_role_2" value="{{ settings.hero_role_2|default:'DESIGNER' }}" class="form-control" placeholder="e.g. DESIGNER or GRAPHER" maxlength="15">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Second large text word in the hero section</div>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Hero Introduction / Subtitle</label>
+                <textarea name="hero_subheadline" rows="2" class="form-control" maxlength="180">{{ settings.hero_subheadline }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Short 2–3 line introduction displayed under the big headline</div>
+            </div>
+
+            <!-- Profile & Showcase Photos -->
+            <div class="form-group full-width" style="margin-top: 6px;">
+                <label class="form-label" style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px;">
+                    Profile & Showcase Photos
+                </label>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-bottom: 16px;">
+                    Click any photo box below to upload a new image. Both photos automatically update on the live site.
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <!-- Photo 1: Main Profile Photo -->
+                    <div class="image-upload-box" onclick="document.getElementById('avatar_image_input').click()" style="cursor: pointer; padding: 20px; text-align: center; border: 2px dashed var(--db-border); border-radius: var(--radius-md); background: #121214; transition: all 0.2s;">
+                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>🪪</span> Main Profile Photo
+                        </div>
+                        <div style="font-size: 0.76rem; color: var(--db-text-muted); margin-top: 4px;">
+                            Shown in the hero center card & top navigation avatar
+                        </div>
+                        <input type="file" id="avatar_image_input" name="avatar_image" class="form-control" accept="image/*" style="display: none;">
+                        
+                        <div style="margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                            {% if settings.avatar_image %}
+                                <img src="{{ settings.avatar_image.url }}" alt="Main Profile" class="live-preview-img" style="max-height: 150px; border-radius: 10px; border: 1px solid var(--db-border); box-shadow: 0 4px 16px rgba(0,0,0,0.5); object-fit: cover;">
+                            {% else %}
+                                <img src="/static/images/qrxY8NagVO40NBrdhFEGgFR3PYYe606.jpg" alt="Default Profile" class="live-preview-img" style="max-height: 150px; border-radius: 10px; opacity: 0.6; object-fit: cover;">
+                            {% endif %}
+                            <span style="font-size: 0.74rem; color: var(--db-accent); font-weight: 600; margin-top: 4px;">Click to change photo</span>
+                        </div>
+                    </div>
+
+                    <!-- Photo 2: Secondary / Services Showcase Photo -->
+                    <div class="image-upload-box" onclick="document.getElementById('services_image_input').click()" style="cursor: pointer; padding: 20px; text-align: center; border: 2px dashed var(--db-border); border-radius: var(--radius-md); background: #121214; transition: all 0.2s;">
+                        <div style="font-weight: 700; color: #fff; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>🔄</span> Services & Flip Photo
+                        </div>
+                        <div style="font-size: 0.76rem; color: var(--db-text-muted); margin-top: 4px;">
+                            Shown beside "What I Can Do For You" & when flipping the 3D card
+                        </div>
+                        <input type="file" id="services_image_input" name="services_image" class="form-control" accept="image/*" style="display: none;">
+                        
+                        <div style="margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                            {% if settings.services_image %}
+                                <img src="{{ settings.services_image.url }}" alt="Services Showcase" class="live-preview-img" style="max-height: 150px; border-radius: 10px; border: 1px solid var(--db-border); box-shadow: 0 4px 16px rgba(0,0,0,0.5); object-fit: cover;">
+                            {% elif settings.avatar_image %}
+                                <img src="{{ settings.avatar_image.url }}" alt="Profile" class="live-preview-img" style="max-height: 150px; border-radius: 10px; border: 1px solid var(--db-border); box-shadow: 0 4px 16px rgba(0,0,0,0.5); object-fit: cover; opacity: 0.8;">
+                            {% else %}
+                                <img src="/static/images/VRQgkdWsjawSg1qpCm45HfSY1I75d1.jpg" alt="Default Showcase" class="live-preview-img" style="max-height: 150px; border-radius: 10px; opacity: 0.6; object-fit: cover;">
+                            {% endif %}
+                            <span style="font-size: 0.74rem; color: var(--db-accent); font-weight: 600; margin-top: 4px;">Click to change photo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. About Me & Numbers -->
+        <div style="font-weight: 700; color: #fff; font-size: 1.05rem; margin: 32px 0 16px; border-top: 1px solid var(--db-border); padding-top: 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--db-accent);">02.</span> About Me & Key Numbers
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label class="form-label">About Me Biography</label>
+                <textarea name="about_text" rows="3" class="form-control" maxlength="280">{{ settings.about_text|default:settings.bio }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Main personal story paragraph displayed inside the About section</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Years of Experience</label>
+                <input type="text" name="stat_experience_num" value="{{ settings.stat_experience_num|default:'6+' }}" class="form-control" placeholder="e.g. 2+ or 6+" maxlength="10">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">e.g. 2+, 5+, 10+</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Completed Projects</label>
+                <input type="text" name="stat_projects_num" value="{{ settings.stat_projects_num|default:'50+' }}" class="form-control" placeholder="e.g. 50+" maxlength="10">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">e.g. 25+, 50+, 100+</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Happy Clients</label>
+                <input type="text" name="stat_clients_num" value="{{ settings.stat_clients_num|default:'30+' }}" class="form-control" placeholder="e.g. 30+" maxlength="10">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">e.g. 30+, 150+</div>
+            </div>
+        </div>
+
+        <!-- 3. Section Introductions -->
+        <div style="font-weight: 700; color: #fff; font-size: 1.05rem; margin: 32px 0 16px; border-top: 1px solid var(--db-border); padding-top: 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--db-accent);">03.</span> Section Introductions
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label class="form-label">Services Intro ("What I Can Do For You")</label>
+                <textarea name="services_subtitle" rows="2" class="form-control" maxlength="180">{{ settings.services_subtitle }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Subtitle text under "WHAT I CAN DO FOR YOU"</div>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Projects Intro ("Featured Projects")</label>
+                <textarea name="projects_subtitle" rows="2" class="form-control" maxlength="180">{{ settings.projects_subtitle }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Subtitle text under "FEATURED PROJECTS"</div>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Testimonials Intro ("What My Clients Say")</label>
+                <textarea name="testimonials_subtitle" rows="2" class="form-control" maxlength="180">{{ settings.testimonials_subtitle }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Subtitle text under "WHAT MY CLIENTS SAY"</div>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">FAQ Intro ("Frequently Asked Questions")</label>
+                <textarea name="faq_subtitle" rows="2" class="form-control" maxlength="180">{{ settings.faq_subtitle }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Subtitle text under "FREQUENTLY ASKED QUESTIONS"</div>
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Blog Intro ("Design Insights & Ideas")</label>
+                <textarea name="blogs_subtitle" rows="2" class="form-control" maxlength="180">{{ settings.blogs_subtitle }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Subtitle text under "ARTICLES & INSIGHTS"</div>
+            </div>
+        </div>
+
+        <!-- 4. Contact & Socials -->
+        <div style="font-weight: 700; color: #fff; font-size: 1.05rem; margin: 32px 0 16px; border-top: 1px solid var(--db-border); padding-top: 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--db-accent);">04.</span> Contact Details & Social Profiles
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" name="email" value="{{ settings.email }}" class="form-control" placeholder="designer@example.com" maxlength="60">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Email link for contact buttons</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Phone / WhatsApp</label>
+                <input type="text" name="phone" value="{{ settings.phone }}" class="form-control" placeholder="+91 93614 80054" maxlength="25">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Phone number displayed in header & contact</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Location</label>
+                <input type="text" name="location" value="{{ settings.location }}" class="form-control" placeholder="Saidapet, Chennai" maxlength="40">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Shown in top navbar badge</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Work Status</label>
+                <input type="text" name="availability_status" value="{{ settings.availability_status }}" class="form-control" placeholder="Available for work" maxlength="30">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Green status pill in top navbar</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Instagram Profile URL</label>
+                <input type="url" name="instagram_url" value="{{ settings.instagram_url }}" class="form-control" placeholder="https://instagram.com/...">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Behance Profile URL</label>
+                <input type="url" name="behance_url" value="{{ settings.behance_url }}" class="form-control" placeholder="https://behance.net/...">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Dribbble Profile URL</label>
+                <input type="url" name="dribbble_url" value="{{ settings.dribbble_url }}" class="form-control" placeholder="https://dribbble.com/...">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Twitter / X Profile URL</label>
+                <input type="url" name="twitter_url" value="{{ settings.twitter_url }}" class="form-control" placeholder="https://x.com/...">
+            </div>
+
+            <div class="form-group full-width">
+                <label class="form-label">Footer Copyright Notice</label>
+                <input type="text" name="copyright_text" value="{{ settings.copyright_text }}" class="form-control" placeholder="Copyright 2025. All Rights Reserved" maxlength="70">
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Bottom footer copyright text</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--db-border); display: flex; justify-content: flex-end; gap: 12px;">
+            <button type="submit" class="btn btn-accent" style="padding: 12px 28px; font-size: 0.95rem;">
+                ✓ Save Settings & Update Live Site
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

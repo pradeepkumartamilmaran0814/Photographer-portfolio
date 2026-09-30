@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if page_title %}{{ page_title }} | {% endif %}{{ site_settings.site_title|default:"Portavia" }} - {{ site_settings.tagline|default:"Digital Designer" }}</title>
+    <meta name="description" content="{{ site_settings.hero_subheadline|default:'Portavia is a clean portfolio for showcasing creative work.' }}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ site_settings.site_title|default:'Portavia' }}">
+    <meta property="og:description" content="{{ site_settings.hero_subheadline }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/vBe56549gs4eoEzOSmyUR33ZTjI.png' %}">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/portavia-theme.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Ambient Background Lighting -->
+    <div class="ambient-background" aria-hidden="true">
+        <div class="ambient-glow-1"></div>
+        <div class="ambient-glow-2"></div>
+    </div>
+
+    <!-- Floating Glassmorphic Header -->
+    <header class="site-header">
+        <nav class="navbar">
+            <a href="{% url 'portfolio:home' %}" class="brand-logo">
+                <span class="brand-dot"></span>
+                {{ site_settings.site_title|default:"PORTAVIA" }}
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{% url 'portfolio:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+                <li><a href="{% url 'portfolio:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a></li>
+                <li><a href="{% url 'portfolio:projects' %}" class="nav-link {% if 'project' in request.resolver_match.url_name %}active{% endif %}">Projects</a></li>
+                <li><a href="{% url 'portfolio:blogs' %}" class="nav-link {% if 'blog' in request.resolver_match.url_name %}active{% endif %}">Blogs</a></li>
+            </ul>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="#contact" class="nav-cta-btn">Let's Talk</a>
+                <a href="/admin/" target="_blank" class="nav-admin-link" title="Open Django Admin CMS">CMS Admin ↗</a>
+                <button class="mobile-nav-toggle" aria-label="Toggle navigation">☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% if messages %}
+            <div class="container" style="margin-bottom: 24px;">
+                {% for message in messages %}
+                    <div class="toast-alert" style="position: static; margin-bottom: 12px; display: flex;">
+                        <span>✓</span>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Contact & Inquiries Section -->
+    <section class="container" id="contact">
+        <div class="contact-section">
+            <div class="contact-layout">
+                <div class="contact-info-block">
+                    <span class="section-label">Start A Project</span>
+                    <h2 class="section-title">Let's Build Something Great Together</h2>
+                    <p style="color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 24px;">
+                        Have a project in mind, an inquiry, or just want to say hi? Fill in the form or reach out directly.
+                    </p>
+
+                    <div class="contact-item">
+                        <span class="contact-label">Email Directly</span>
+                        <a href="mailto:{{ site_settings.email|default:'designer@example.com' }}" class="contact-val">
+                            {{ site_settings.email|default:"designer@example.com" }}
+                        </a>
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-label">Call or WhatsApp</span>
+                        <a href="tel:{{ site_settings.phone|default:'+1 (555) 123-4567' }}" class="contact-val">
+                            {{ site_settings.phone|default:"+1 (555) 123-4567" }}
+                        </a>
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-label">Location & Status</span>
+                        <span class="contact-val" style="font-size: 1rem; color: var(--text-secondary);">
+                            📍 {{ site_settings.location|default:"San Francisco, CA" }} • <span style="color: var(--accent-lime);">{{ site_settings.availability_status|default:"Available" }}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <form action="{% url 'portfolio:contact_submit' %}" method="POST" class="framer-form framer-contact-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" required class="framer-form-input" placeholder="e.g. Sarah Connor">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" required class="framer-form-input" placeholder="sarah@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Subject / Scope</label>
+                            <input type="text" name="subject" class="framer-form-input" placeholder="Web Design & Branding Inquiry">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Message Details</label>
+                            <textarea name="message" required rows="4" class="framer-form-textarea" placeholder="Tell me about your timeline, scope, and objectives..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="margin-top: 8px; justify-content: center; width: 100%;">
+                            Send Project Message →
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="brand-logo" style="margin-bottom: 6px;">
+                        <span class="brand-dot"></span>
+                        {{ site_settings.site_title|default:"PORTAVIA" }}
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">
+                        {{ site_settings.tagline|default:"Digital Designer & Art Director" }}
+                    </p>
+                </div>
+
+                <ul class="footer-social-links">
+                    {% if site_settings.dribbble_url %}
+                        <li><a href="{{ site_settings.dribbble_url }}" target="_blank" rel="noopener" class="footer-social-link">Dribbble</a></li>
+                    {% endif %}
+                    {% if site_settings.twitter_url %}
+                        <li><a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener" class="footer-social-link">Twitter / X</a></li>
+                    {% endif %}
+                    {% if site_settings.instagram_url %}
+                        <li><a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener" class="footer-social-link">Instagram</a></li>
+                    {% endif %}
+                    {% if site_settings.linkedin_url %}
+                        <li><a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener" class="footer-social-link">LinkedIn</a></li>
+                    {% endif %}
+                    {% if site_settings.github_url %}
+                        <li><a href="{{ site_settings.github_url }}" target="_blank" rel="noopener" class="footer-social-link">GitHub</a></li>
+                    {% endif %}
+                </ul>
+
+                <div class="footer-copyright">
+                    © {% now "Y" %} {{ site_settings.designer_name|default:"Portavia" }}. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

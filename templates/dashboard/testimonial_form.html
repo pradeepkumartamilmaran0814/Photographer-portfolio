@@ -1,0 +1,72 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="db-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="db-card-header">
+        <div>
+            <div class="db-card-title">{% if is_edit %}Edit Testimonial - {{ testimonial.client_name }}{% else %}Add New Testimonial{% endif %}</div>
+            <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                Changes saved here will immediately sync to the "What My Clients Say" section on the home page.
+            </div>
+        </div>
+        <a href="{% url 'portfolio:dashboard_testimonials' %}" class="btn btn-outline btn-sm">
+            ← Back to Testimonials
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+                <label class="form-label">Client Name</label>
+                <input type="text" name="client_name" class="form-control" value="{{ testimonial.client_name|default:'' }}" placeholder="e.g. John Harris" maxlength="35" data-char-hint="Client full name" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Client Role / Position</label>
+                <input type="text" name="client_role" class="form-control" value="{{ testimonial.client_role|default:'' }}" placeholder="e.g. Marketing Director" maxlength="40" data-char-hint="Job title or company role">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+                <label class="form-label">Company (Optional)</label>
+                <input type="text" name="client_company" class="form-control" value="{{ testimonial.client_company|default:'' }}" placeholder="e.g. TechCorp" maxlength="30" data-char-hint="Company or brand name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Client Photo / Avatar</label>
+                <input type="file" name="client_avatar" class="form-control" accept="image/*">
+                {% if testimonial.avatar_url %}
+                    <div style="margin-top: 6px; font-size: 0.75rem; color: var(--db-text-muted);">
+                        Current avatar: <a href="{{ testimonial.avatar_url }}" target="_blank" style="color: var(--db-accent);">View Photo</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Quote / Review Text</label>
+            <textarea name="quote" class="form-control" rows="4" placeholder="e.g. Duncan truly understood my vision and turned it into impactful designs. The results went beyond my expectations!" maxlength="260" data-char-rec="60–200 chars" data-char-hint="Review card body text" required>{{ testimonial.quote|default:'' }}</textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+                <label class="form-label">Display Order</label>
+                <input type="number" name="order" class="form-control" value="{{ testimonial.order|default:'0' }}">
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; margin-top: 28px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff;">
+                    <input type="checkbox" name="is_active" {% if not is_edit or testimonial.is_active %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--db-accent);">
+                    <span>Display on Website (Active)</span>
+                </label>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--db-border); display: flex; justify-content: flex-end; gap: 12px;">
+            <a href="{% url 'portfolio:dashboard_testimonials' %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-accent">
+                {% if is_edit %}Save Changes & Sync UI{% else %}Add Testimonial & Sync UI{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; margin-bottom: 100px;">
+    <!-- Page Header -->
+    <div style="margin-bottom: 40px;">
+        <span class="section-label">Archive</span>
+        <h1 class="hero-title" style="font-size: clamp(3rem, 7vw, 6rem); margin-bottom: 16px;">
+            SELECTED WORKS
+        </h1>
+        <p class="hero-subtitle">
+            A comprehensive showcase of digital products, user interfaces, branding rollouts, and visual systems.
+        </p>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="filter-tabs">
+        <a href="{% url 'portfolio:projects' %}" class="filter-tab {% if active_slug == 'all' %}active{% endif %}">
+            All Projects ({{ projects.count }})
+        </a>
+        {% for cat in categories %}
+            <a href="{% url 'portfolio:projects' %}?category={{ cat.slug }}" class="filter-tab {% if active_slug == cat.slug %}active{% endif %}">
+                {{ cat.name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="projects-grid">
+        {% for project in projects %}
+            <article class="project-card">
+                <a href="{% url 'portfolio:project_detail' project.slug %}" class="project-img-wrapper">
+                    <img src="{{ project.cover_url }}" alt="{{ project.title }}" class="project-img" loading="lazy">
+                    <span class="project-card-badge">{{ project.category.name|default:"Design" }}</span>
+                    <span class="project-card-year">{{ project.year }}</span>
+                </a>
+                <div class="project-card-content">
+                    <h2 class="project-card-title">
+                        <a href="{% url 'portfolio:project_detail' project.slug %}">{{ project.title }}</a>
+                    </h2>
+                    <p class="project-card-desc">{{ project.tagline|default:project.short_description }}</p>
+                    <div class="project-card-footer">
+                        <span>Client: <strong>{{ project.client }}</strong></span>
+                        <a href="{% url 'portfolio:project_detail' project.slug %}" class="project-view-arrow">Case Study →</a>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-secondary);">
+                <h3>No projects found in this category.</h3>
+                <p style="margin-top: 10px;"><a href="{% url 'portfolio:projects' %}" class="btn-primary" style="margin-top: 16px;">View All Projects</a></p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

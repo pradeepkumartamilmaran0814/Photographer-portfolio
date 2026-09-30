@@ -1,0 +1,59 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="db-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="db-card-header">
+        <div>
+            <div class="db-card-title">{% if is_edit %}Edit Service - {{ service.title }}{% else %}Add New Service{% endif %}</div>
+            <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                Changes saved here will immediately update on the homepage "WHAT I CAN DO FOR YOU" accordion.
+            </div>
+        </div>
+        <a href="{% url 'portfolio:dashboard_services' %}" class="btn btn-outline btn-sm">
+            ← Back to Services
+        </a>
+    </div>
+
+    <form method="POST" class="db-card-body">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Service #</label>
+                <input type="text" name="order_num" class="form-control" value="{{ service.order_num|default:'1.' }}" placeholder="1." maxlength="5" required>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">e.g. 1., 2., 3., 4.</div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Service Title</label>
+                <input type="text" name="title" class="form-control" value="{{ service.title|default:'' }}" placeholder="e.g. UI/UX DESIGN or PHOTOGRAPHY" maxlength="50" required>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Title shown on the accordion bar</div>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label">Service Bullet Points (One per line)</label>
+            <textarea name="description" class="form-control" rows="6" placeholder="Wireframing and prototyping&#10;User Interface design for web and mobile apps&#10;Usability testing and user feedback analysis&#10;Interaction design and micro-animations" style="line-height: 1.6; font-family: inherit;">{{ service.description|default:'' }}</textarea>
+            <div style="font-size: 0.74rem; color: var(--db-text-muted); margin-top: 6px;">
+                💡 <strong>Tip:</strong> Type each bullet point on a separate line. They will show inside the dropdown drawer on the website.
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: var(--radius-md);">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; margin-bottom: 0;">
+                <input type="checkbox" name="is_active" {% if not is_edit or service.is_active %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--db-accent);">
+                <span style="font-weight: 500;">Display this service on live website</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="color: var(--db-text-muted); font-size: 0.8rem; margin-bottom: 0;">Order:</label>
+                <input type="number" name="order" class="form-control" value="{{ service.order|default:'0' }}" style="width: 70px; padding: 6px 10px;">
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--db-border); display: flex; justify-content: flex-end; gap: 12px;">
+            <a href="{% url 'portfolio:dashboard_services' %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-accent" style="padding: 10px 24px;">
+                {% if is_edit %}✓ Save Service & Update UI{% else %}✓ Create Service & Update UI{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

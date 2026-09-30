@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; margin-bottom: 80px;">
+    <!-- Page Header -->
+    <div style="margin-bottom: 40px;">
+        <span class="section-label">Thoughts & Writings</span>
+        <h1 class="hero-title" style="font-size: clamp(3rem, 7vw, 6rem); margin-bottom: 16px;">
+            DESIGN INSIGHTS
+        </h1>
+        <p class="hero-subtitle">
+            Essays, workflows, trend reports, and deep-dives into modern digital product design.
+        </p>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="filter-tabs">
+        <a href="{% url 'portfolio:blogs' %}" class="filter-tab {% if active_slug == 'all' %}active{% endif %}">
+            All Articles ({{ blogs.count }})
+        </a>
+        {% for cat in categories %}
+            <a href="{% url 'portfolio:blogs' %}?category={{ cat.slug }}" class="filter-tab {% if active_slug == cat.slug %}active{% endif %}">
+                {{ cat.name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Blogs Grid -->
+    <div class="blogs-grid">
+        {% for blog in blogs %}
+            <article class="blog-card">
+                <a href="{% url 'portfolio:blog_detail' blog.slug %}" class="blog-img-wrapper">
+                    <img src="{{ blog.cover_url }}" alt="{{ blog.title }}" class="blog-img" loading="lazy">
+                </a>
+                <div class="blog-card-content">
+                    <div class="blog-meta">
+                        <span class="blog-cat-badge">{{ blog.category.name|default:"Insights" }}</span>
+                        <span>•</span>
+                        <span>{{ blog.published_date|date:"M d, Y" }}</span>
+                        <span>•</span>
+                        <span>{{ blog.read_time }}</span>
+                    </div>
+                    <h2 class="blog-card-title">
+                        <a href="{% url 'portfolio:blog_detail' blog.slug %}">{{ blog.title }}</a>
+                    </h2>
+                    <p class="blog-card-desc">{{ blog.summary }}</p>
+                    <a href="{% url 'portfolio:blog_detail' blog.slug %}" class="project-view-arrow">Read Full Article →</a>
+                </div>
+            </article>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-secondary);">
+                <h3>No articles found in this category.</h3>
+                <p style="margin-top: 10px;"><a href="{% url 'portfolio:blogs' %}" class="btn-primary" style="margin-top: 16px;">View All Articles</a></p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Newsletter Box -->
+    <div class="newsletter-box">
+        <span class="section-label">Stay in the Loop</span>
+        <h2 style="font-family: var(--font-heading); font-size: 2.2rem; text-transform: uppercase; margin-bottom: 12px; color: var(--text-primary);">
+            Like What You See? There's More.
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+            Get monthly design inspiration, behind-the-scenes case studies, and creative process notes handcrafted for fellow creators.
+        </p>
+
+        <form action="{% url 'portfolio:newsletter_subscribe' %}" method="POST" class="newsletter-form">
+            {% csrf_token %}
+            <input type="email" name="email" required placeholder="Enter your email address" class="newsletter-input">
+            <button type="submit" class="btn-primary">Subscribe</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

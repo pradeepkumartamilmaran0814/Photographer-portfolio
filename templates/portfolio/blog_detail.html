@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; margin-bottom: 80px;">
+    <!-- Article Header -->
+    <article style="max-width: 860px; margin: 0 auto 60px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <a href="{% url 'portfolio:blogs' %}" class="section-view-all">← Back to Articles</a>
+            <span class="project-card-badge" style="position: static;">{{ blog.category.name|default:"Insights" }}</span>
+        </div>
+
+        <h1 class="hero-title" style="font-size: clamp(2.5rem, 5vw, 4.5rem); margin-bottom: 20px;">
+            {{ blog.title }}
+        </h1>
+
+        <div style="display: flex; align-items: center; gap: 16px; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px;">
+            <span>By <strong>{{ blog.author }}</strong></span>
+            <span>•</span>
+            <span>{{ blog.published_date|date:"F d, Y" }}</span>
+            <span>•</span>
+            <span>{{ blog.read_time }}</span>
+        </div>
+
+        {% if blog.summary %}
+            <p style="font-size: 1.3rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 40px; font-weight: 300;">
+                {{ blog.summary }}
+            </p>
+        {% endif %}
+
+        <!-- Cover Image -->
+        <div style="border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 48px; border: 1px solid var(--border-subtle);">
+            <img src="{{ blog.cover_url }}" alt="{{ blog.title }}" style="width: 100%; height: auto; max-height: 550px; object-fit: cover;">
+        </div>
+
+        <!-- Article Body -->
+        <div style="display: flex; flex-direction: column; gap: 24px; font-size: 1.15rem; color: var(--text-secondary); line-height: 1.85;">
+            {% for para in paragraphs %}
+                {% if para|slice:":3" == "1. " or para|slice:":3" == "2. " or para|slice:":3" == "3. " or para|slice:":3" == "4. " or para|slice:":3" == "5. " or para|slice:":3" == "6. " %}
+                    <h2 style="font-family: var(--font-heading); font-size: 1.8rem; text-transform: uppercase; color: var(--text-primary); margin-top: 24px; letter-spacing: 0.02em;">
+                        {{ para }}
+                    </h2>
+                {% else %}
+                    <p>{{ para }}</p>
+                {% endif %}
+            {% empty %}
+                <p>{{ blog.content|linebreaks }}</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <!-- Newsletter Inset -->
+    <div class="newsletter-box">
+        <span class="section-label">Stay in the Loop</span>
+        <h2 style="font-family: var(--font-heading); font-size: 2.2rem; text-transform: uppercase; margin-bottom: 12px; color: var(--text-primary);">
+            Like What You Read?
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+            Subscribe to get newly published articles delivered straight to your inbox.
+        </p>
+
+        <form action="{% url 'portfolio:newsletter_subscribe' %}" method="POST" class="newsletter-form">
+            {% csrf_token %}
+            <input type="email" name="email" required placeholder="Enter your email address" class="newsletter-input">
+            <button type="submit" class="btn-primary">Subscribe</button>
+        </form>
+    </div>
+
+    <!-- Related Articles -->
+    {% if related_blogs %}
+        <div class="section-header" style="margin-top: 60px;">
+            <div>
+                <span class="section-label">Keep Exploring</span>
+                <h2 class="section-title">Related Articles</h2>
+            </div>
+            <a href="{% url 'portfolio:blogs' %}" class="section-view-all">All Articles →</a>
+        </div>
+
+        <div class="blogs-grid">
+            {% for rb in related_blogs %}
+                <article class="blog-card">
+                    <a href="{% url 'portfolio:blog_detail' rb.slug %}" class="blog-img-wrapper">
+                        <img src="{{ rb.cover_url }}" alt="{{ rb.title }}" class="blog-img" loading="lazy">
+                    </a>
+                    <div class="blog-card-content">
+                        <div class="blog-meta">
+                            <span class="blog-cat-badge">{{ rb.category.name|default:"Insights" }}</span>
+                            <span>•</span>
+                            <span>{{ rb.published_date|date:"M d, Y" }}</span>
+                        </div>
+                        <h3 class="blog-card-title">
+                            <a href="{% url 'portfolio:blog_detail' rb.slug %}">{{ rb.title }}</a>
+                        </h3>
+                        <p class="blog-card-desc">{{ rb.summary }}</p>
+                        <a href="{% url 'portfolio:blog_detail' rb.slug %}" class="project-view-arrow">Read Article →</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

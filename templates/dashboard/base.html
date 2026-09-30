@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title|default:"Dashboard" }} | Portavia Backend GUI</title>
+    <link rel="icon" href="{% static 'images/vBe56549gs4eoEzOSmyUR33ZTjI.png' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-dot"></span>
+                <span class="brand-title">PORTAVIA</span>
+                <span class="brand-tag">ADMIN</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{% url 'portfolio:dashboard_index' %}" class="nav-item {% if active_tab == 'overview' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>📊</span>
+                        <span>Overview</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio:dashboard_projects' %}" class="nav-item {% if active_tab == 'projects' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>📁</span>
+                        <span>Projects</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio:dashboard_blogs' %}" class="nav-item {% if active_tab == 'blogs' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>📝</span>
+                        <span>Blog Posts</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio:dashboard_services' %}" class="nav-item {% if active_tab == 'services' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>🛠️</span>
+                        <span>Services</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio:dashboard_testimonials' %}" class="nav-item {% if active_tab == 'testimonials' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>⭐</span>
+                        <span>Testimonials</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio:dashboard_faqs' %}" class="nav-item {% if active_tab == 'faqs' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>❓</span>
+                        <span>FAQs</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio:dashboard_settings' %}" class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>⚙️</span>
+                        <span>Site Settings</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'portfolio:dashboard_messages' %}" class="nav-item {% if active_tab == 'messages' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>💬</span>
+                        <span>Client Messages</span>
+                    </div>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/" target="_blank" class="btn-sidebar-link">
+                    <span>🌐</span>
+                    <span>View Live Website ↗</span>
+                </a>
+                <a href="/admin/" target="_blank" class="btn-sidebar-link">
+                    <span>⚡</span>
+                    <span>Database Admin ↗</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="dashboard-main">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-title-area">
+                    <h1 class="header-title">{{ page_title }}</h1>
+                </div>
+
+                <div class="header-actions">
+                    <a href="{% url 'portfolio:dashboard_project_create' %}" class="btn btn-accent btn-sm">
+                        <span>+ New Project</span>
+                    </a>
+                    <a href="{% url 'portfolio:dashboard_blog_create' %}" class="btn btn-outline btn-sm">
+                        <span>+ New Article</span>
+                    </a>
+                    <a href="/" target="_blank" class="btn btn-outline btn-sm">
+                        <span>View Live Site ↗</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="dashboard-content">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="db-alert db-alert-{{ message.tags|default:'success' }}">
+                            <span>✓</span>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Image preview helper for file inputs
+        document.addEventListener('change', function(e) {
+            if (e.target.matches('input[type="file"][name$="image"]') || e.target.matches('input[type="file"][name="cover_image"]')) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        let parent = e.target.closest('.image-upload-box') || e.target.parentElement;
+                        let preview = parent.querySelector('.live-preview-img');
+                        if (!preview) {
+                            preview = document.createElement('img');
+                            preview.className = 'live-preview-img';
+                            preview.style.maxHeight = '180px';
+                            preview.style.borderRadius = '12px';
+                            preview.style.marginTop = '12px';
+                            preview.style.border = '1px solid var(--db-border)';
+                            parent.appendChild(preview);
+                        }
+                        preview.src = evt.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // Universal Character Counter & UI Limit Assistant
+        function initCharacterCounters() {
+            var targets = document.querySelectorAll('input[maxlength], textarea[maxlength], [data-char-limit]');
+            targets.forEach(function(el) {
+                if (el.type === 'file' || el.type === 'hidden' || el.type === 'checkbox' || el.type === 'radio') return;
+                if (el.dataset.counterInitialized) return;
+                el.dataset.counterInitialized = "true";
+
+                var max = parseInt(el.getAttribute('maxlength') || el.dataset.charLimit, 10);
+                if (!max || isNaN(max)) return;
+
+                var rec = el.dataset.charRec || '';
+                var hint = el.dataset.charHint || '';
+
+                var wrap = document.createElement('div');
+                wrap.className = 'char-limit-wrap';
+
+                var hintSpan = document.createElement('span');
+                hintSpan.className = 'char-hint';
+                if (hint) {
+                    hintSpan.innerHTML = hint + (rec ? ' • <span class="char-rec-badge">Rec: ' + rec + '</span>' : '');
+                } else if (rec) {
+                    hintSpan.innerHTML = '<span class="char-rec-badge">Recommended: ' + rec + '</span>';
+                }
+
+                var badge = document.createElement('span');
+                badge.className = 'char-badge';
+
+                wrap.appendChild(hintSpan);
+                wrap.appendChild(badge);
+
+                if (el.nextSibling) {
+                    el.parentNode.insertBefore(wrap, el.nextSibling);
+                } else {
+                    el.parentNode.appendChild(wrap);
+                }
+
+                function updateCounter() {
+                    var len = el.value.length;
+                    badge.textContent = len + ' / ' + max + ' chars';
+
+                    badge.classList.remove('optimal', 'warning', 'limit');
+                    if (len >= max) {
+                        badge.classList.add('limit');
+                    } else if (len >= Math.floor(max * 0.85)) {
+                        badge.classList.add('warning');
+                    } else if (len > 0) {
+                        badge.classList.add('optimal');
+                    }
+                }
+
+                el.addEventListener('input', updateCounter);
+                el.addEventListener('change', updateCounter);
+                updateCounter();
+            });
+        }
+        document.addEventListener('DOMContentLoaded', initCharacterCounters);
+    </script>
+</body>
+</html>
