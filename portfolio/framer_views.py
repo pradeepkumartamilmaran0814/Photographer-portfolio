@@ -69,7 +69,9 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
                 "id": s.id,
                 "order_num": s.order_num,
                 "title": s.title,
-                "description": s.description
+                "description": s.description,
+                "hover_url": s.hover_image.url if s.hover_image else "",
+                "default_hover_url": s.default_hover_url,
             }
             for s in active_services
         ],
@@ -526,6 +528,27 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
                     }
                 }
 
+                // 5.6. Service Hover Images Sync (wOCTh, RPxWd, Ov53j, 9Hdui)
+                var hoverHashes = [
+                    "wOCTh6BhMTLrGPZ7C8doO3XdY",
+                    "RPxWdsXRtMBhMcTCb414zGg2QY",
+                    "Ov53jG8lAoAFuct0Li7vWgmOqQ",
+                    "9HduiIXX5eSq1WREpvO4qCnKM"
+                ];
+                DATA.services.forEach(function(s, idx) {
+                    if (idx < hoverHashes.length && s.hover_url) {
+                        var hHash = hoverHashes[idx];
+                        var altName = "Service Hover Image - " + (idx + 1);
+                        document.querySelectorAll('img[src*="' + hHash + '"], img[alt="' + altName + '"], img[srcset*="' + hHash + '"]').forEach(function(img) {
+                            img.removeAttribute('srcset');
+                            img.removeAttribute('sizes');
+                            if (img.src !== s.hover_url) {
+                                img.src = s.hover_url;
+                            }
+                        });
+                    }
+                });
+
                 // 6. Stats & Metrics Sync (Years of Experience, Completed Projects, Clients on Worldwide, etc.)
                 if (DATA.stat_experience_num) {
                     document.querySelectorAll('.framer-bev44h-container').forEach(function(box) {
@@ -668,6 +691,31 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
             setTimeout(syncContent, delay);
         });
 
+        // Event listeners for immediate service hover card swap
+        function updateHoverImagesNow() {
+            var hoverHashes = [
+                "wOCTh6BhMTLrGPZ7C8doO3XdY",
+                "RPxWdsXRtMBhMcTCb414zGg2QY",
+                "Ov53jG8lAoAFuct0Li7vWgmOqQ",
+                "9HduiIXX5eSq1WREpvO4qCnKM"
+            ];
+            DATA.services.forEach(function(s, idx) {
+                if (idx < hoverHashes.length && s.hover_url) {
+                    var hHash = hoverHashes[idx];
+                    var altName = "Service Hover Image - " + (idx + 1);
+                    document.querySelectorAll('img[src*="' + hHash + '"], img[alt="' + altName + '"], img[srcset*="' + hHash + '"]').forEach(function(img) {
+                        img.removeAttribute('srcset');
+                        img.removeAttribute('sizes');
+                        if (img.src !== s.hover_url) {
+                            img.src = s.hover_url;
+                        }
+                    });
+                }
+            });
+        }
+        document.addEventListener('pointerover', updateHoverImagesNow, true);
+        document.addEventListener('mouseenter', updateHoverImagesNow, true);
+
         // Debounced MutationObserver to gracefully catch React component mount
         try {
             obs = new MutationObserver(function() {
@@ -713,6 +761,19 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
         # Back face of 3D card / Services card (VRQ)
         html = re.sub(r'https?://[^\s"\']+/images/VRQgkdWsjawSg1qpCm45HfSY1I[^\s"\']*', services_img, html)
         html = re.sub(r'(?:/|\.\./)?framerusercontent\.com/images/VRQgkdWsjawSg1qpCm45HfSY1I[^\s"\']*', services_img, html)
+
+    # Hover Images SSR replacement
+    hover_hashes = [
+        "wOCTh6BhMTLrGPZ7C8doO3XdY",
+        "RPxWdsXRtMBhMcTCb414zGg2QY",
+        "Ov53jG8lAoAFuct0Li7vWgmOqQ",
+        "9HduiIXX5eSq1WREpvO4qCnKM",
+    ]
+    for idx, hHash in enumerate(hover_hashes):
+        if idx < len(active_services) and active_services[idx].hover_image:
+            custom_hover = active_services[idx].hover_image.url
+            html = re.sub(rf'https?://[^\s"\']+/images/{hHash}[^\s"\']*', custom_hover, html)
+            html = re.sub(rf'(?:/|\.\./)?framerusercontent\.com/images/{hHash}[^\s"\']*', custom_hover, html)
 
     # Services Subtitle SSR replacement
     if site_settings.services_subtitle:

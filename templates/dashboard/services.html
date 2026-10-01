@@ -7,7 +7,7 @@
         <div>
             <div class="db-card-title">Services Section: Showcase Photo & Subtitle</div>
             <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
-                Customize the introduction text and the photo shown beside the "WHAT I CAN DO FOR YOU" accordion on the homepage.
+                Customize the introduction text and the large tilted photo shown beside the "WHAT I CAN DO FOR YOU" accordion on the homepage.
             </div>
         </div>
     </div>
@@ -16,32 +16,47 @@
         {% csrf_token %}
         <input type="hidden" name="update_section_header" value="1">
 
-        <div style="display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start;">
+        <div style="display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start;">
             <!-- Left: Subtitle Text -->
             <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Services Section Subtitle</label>
+                <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Services Section Subtitle</span>
+                    <span style="font-size: 0.72rem; color: var(--db-text-muted); font-weight: normal;">Under "WHAT I CAN DO FOR YOU"</span>
+                </label>
                 <textarea name="services_subtitle" rows="3" class="form-control" placeholder="As a digital designer, I am a visual storyteller, crafting experiences that connect deeply and spark creativity." style="line-height: 1.5;">{{ site_settings.services_subtitle }}</textarea>
-                <div style="font-size: 0.76rem; color: var(--db-text-muted); margin-top: 6px;">
-                    Displayed right under "WHAT I CAN DO FOR YOU" on the home page.
+                <div style="font-size: 0.74rem; color: var(--db-text-muted); margin-top: 6px; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
+                    <strong style="color: var(--db-accent);">Default Template Text:</strong> "As a digital designer, I am a visual storyteller, crafting experiences that connect deeply and spark creativity."
                 </div>
             </div>
 
             <!-- Right: Showcase Photo Upload -->
             <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Showcase Photo (Right Side)</label>
-                <div class="image-upload-box" onclick="document.getElementById('services_image_input').click()" style="cursor: pointer; padding: 14px; text-align: center; border: 2px dashed var(--db-border); border-radius: var(--radius-md); background: #121214;">
-                    <div style="margin-bottom: 8px;">
-                        {% if site_settings.services_image %}
-                            <img src="{{ site_settings.services_image.url }}" alt="Services Showcase" class="live-preview-img" style="max-height: 110px; border-radius: 8px; border: 1px solid var(--db-border); object-fit: cover;">
-                        {% elif site_settings.avatar_image %}
-                            <img src="{{ site_settings.avatar_image.url }}" alt="Services Showcase" class="live-preview-img" style="max-height: 110px; border-radius: 8px; border: 1px solid var(--db-border); object-fit: cover;">
-                        {% else %}
-                            <img src="/static/images/VRQgkdWsjawSg1qpCm45HfSY1I75d1.jpg" alt="Default Showcase" class="live-preview-img" style="max-height: 110px; border-radius: 8px; opacity: 0.6; object-fit: cover;">
-                        {% endif %}
+                <label class="form-label">Right-Side Showcase Card Photo</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+                    <!-- Active Photo -->
+                    <div class="image-upload-box" onclick="document.getElementById('services_image_input').click()" style="cursor: pointer; padding: 10px; text-align: center; border: 2px dashed var(--db-accent); border-radius: var(--radius-md); background: #121214;">
+                        <div style="margin-bottom: 6px;">
+                            {% if site_settings.services_image %}
+                                <img src="{{ site_settings.services_image.url }}" alt="Active Showcase" class="live-preview-img" style="width: 100%; height: 95px; border-radius: 6px; object-fit: cover;">
+                            {% elif site_settings.avatar_image %}
+                                <img src="{{ site_settings.avatar_image.url }}" alt="Active Showcase" class="live-preview-img" style="width: 100%; height: 95px; border-radius: 6px; object-fit: cover;">
+                            {% else %}
+                                <img src="/static/images/VRQgkdWsjawSg1qpCm45HfSY1I.jpg" alt="Active Showcase" class="live-preview-img" style="width: 100%; height: 95px; border-radius: 6px; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.72rem; font-weight: 600; color: var(--db-accent);">Active Photo</div>
+                        <div style="font-size: 0.65rem; color: var(--db-text-muted);">Click to change</div>
+                        <input type="file" id="services_image_input" name="services_image" class="form-control" accept="image/*" style="display: none;">
                     </div>
-                    <div style="font-size: 0.78rem; font-weight: 600; color: var(--db-accent);">Click to change photo</div>
-                    <div style="font-size: 0.72rem; color: var(--db-text-muted);">Displays next to services list</div>
-                    <input type="file" id="services_image_input" name="services_image" class="form-control" accept="image/*" style="display: none;">
+
+                    <!-- Default Template Reference Photo -->
+                    <div style="padding: 10px; text-align: center; border: 1px solid var(--db-border); border-radius: var(--radius-md); background: #0c0c0e;">
+                        <div style="margin-bottom: 6px;">
+                            <img src="/static/images/VRQgkdWsjawSg1qpCm45HfSY1I.jpg" alt="Default Template" style="width: 100%; height: 95px; border-radius: 6px; object-fit: cover; opacity: 0.7;">
+                        </div>
+                        <div style="font-size: 0.72rem; font-weight: 500; color: var(--db-text-muted);">Default Template</div>
+                        <div style="font-size: 0.65rem; color: #666;">Original Framer photo</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,9 +73,9 @@
 <div class="db-card">
     <div class="db-card-header">
         <div>
-            <div class="db-card-title">Services List ({{ services.count }})</div>
+            <div class="db-card-title">Services List & Hover Floating Images ({{ services.count }})</div>
             <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
-                Click "Edit" on any service to modify its title or bullet points.
+                When a visitor hovers over any service on the homepage, a floating tilted image card appears. You can customize the title, bullet points, and hover image for each service below.
             </div>
         </div>
         <a href="{% url 'portfolio:dashboard_service_create' %}" class="btn btn-accent btn-sm">
@@ -72,6 +87,7 @@
         <thead>
             <tr>
                 <th style="width: 50px;">#</th>
+                <th style="width: 130px;">Hover Image</th>
                 <th style="width: 200px;">Service Title</th>
                 <th>Bullet Points / Description</th>
                 <th style="width: 90px;">Status</th>
@@ -83,10 +99,22 @@
                 <tr>
                     <td><strong style="color: var(--db-accent); font-size: 0.95rem;">{{ s.order_num }}</strong></td>
                     <td>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <div style="position: relative; width: 84px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid var(--db-border); background: #000;">
+                                <img src="{{ s.hover_url }}" alt="{{ s.title }} Hover" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            {% if s.hover_image %}
+                                <span class="badge badge-accent" style="font-size: 0.65rem; padding: 2px 6px;">Custom Image</span>
+                            {% else %}
+                                <span class="badge badge-gray" style="font-size: 0.65rem; padding: 2px 6px;">Default Image</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
                         <strong style="color: #fff; font-size: 0.95rem;">{{ s.title }}</strong>
                     </td>
                     <td>
-                        <div style="font-size: 0.82rem; color: var(--db-text-muted); max-width: 500px; line-height: 1.4;">
+                        <div style="font-size: 0.82rem; color: var(--db-text-muted); max-width: 450px; line-height: 1.4;">
                             {{ s.description|linebreaksbr }}
                         </div>
                     </td>
@@ -111,7 +139,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 40px; color: var(--db-text-muted);">
+                    <td colspan="6" style="text-align: center; padding: 40px; color: var(--db-text-muted);">
                         No services configured yet. <a href="{% url 'portfolio:dashboard_service_create' %}" style="color: var(--db-accent);">Create the first service</a>.
                     </td>
                 </tr>

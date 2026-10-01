@@ -134,11 +134,34 @@ class Service(models.Model):
     order_num = models.CharField(max_length=10, default="1.")
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    hover_image = models.ImageField(upload_to="services/", blank=True, null=True, help_text="Hover image shown on floating card when hovering this service")
+    hover_image_static = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ["order", "order_num"]
+
+    @property
+    def default_hover_url(self):
+        defaults = {
+            "1.": "/static/images/wOCTh6BhMTLrGPZ7C8doO3XdY.jpg",
+            "2.": "/static/images/RPxWdsXRtMBhMcTCb414zGg2QY.jpg",
+            "3.": "/static/images/Ov53jG8lAoAFuct0Li7vWgmOqQ.jpg",
+            "4.": "/static/images/9HduiIXX5eSq1WREpvO4qCnKM.jpg",
+        }
+        num = (self.order_num or "").strip()
+        if not num.endswith(".") and num.isdigit():
+            num = num + "."
+        return defaults.get(num, "/static/images/wOCTh6BhMTLrGPZ7C8doO3XdY.jpg")
+
+    @property
+    def hover_url(self):
+        if self.hover_image:
+            return self.hover_image.url
+        if self.hover_image_static:
+            return f"/static/images/{self.hover_image_static}"
+        return self.default_hover_url
 
     def __str__(self):
         return f"{self.order_num} {self.title}"

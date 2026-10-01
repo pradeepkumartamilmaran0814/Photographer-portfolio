@@ -320,6 +320,10 @@ def dashboard_service_create(request):
             is_active=is_active,
             order=order,
         )
+        if "hover_image" in request.FILES:
+            service.hover_image = request.FILES["hover_image"]
+            service.save()
+
         messages.success(request, f"Service '{service.title}' created successfully!")
         return redirect("portfolio:dashboard_services")
 
@@ -339,6 +343,13 @@ def dashboard_service_edit(request, pk):
         service.description = request.POST.get("description", service.description)
         service.is_active = "is_active" in request.POST
         service.order = int(request.POST.get("order", service.order) or 0)
+
+        if request.POST.get("clear_hover_image") == "1":
+            service.hover_image.delete(save=False)
+            service.hover_image = None
+        elif "hover_image" in request.FILES:
+            service.hover_image = request.FILES["hover_image"]
+
         service.save()
         messages.success(request, f"Service '{service.title}' updated successfully!")
         return redirect("portfolio:dashboard_services")

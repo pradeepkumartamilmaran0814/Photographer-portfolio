@@ -6,7 +6,7 @@
         <div>
             <div class="db-card-title">{% if is_edit %}Edit Service - {{ service.title }}{% else %}Add New Service{% endif %}</div>
             <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
-                Changes saved here will immediately update on the homepage "WHAT I CAN DO FOR YOU" accordion.
+                Changes saved here will immediately update on the homepage "WHAT I CAN DO FOR YOU" accordion and hover cards.
             </div>
         </div>
         <a href="{% url 'portfolio:dashboard_services' %}" class="btn btn-outline btn-sm">
@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    <form method="POST" class="db-card-body">
+    <form method="POST" enctype="multipart/form-data" class="db-card-body">
         {% csrf_token %}
         <div style="display: grid; grid-template-columns: 120px 1fr; gap: 16px; margin-bottom: 20px;">
             <div class="form-group" style="margin-bottom: 0;">
@@ -37,6 +37,54 @@
             </div>
         </div>
 
+        <!-- Hover Image (Floating Tilted Card on Hover) -->
+        <div class="form-group" style="margin-bottom: 24px; padding: 18px; background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: var(--radius-md);">
+            <label class="form-label" style="font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                <span>Hover Floating Card Image</span>
+                <span class="badge badge-accent" style="font-size: 0.7rem;">Pops up on Hover</span>
+            </label>
+            <div style="font-size: 0.76rem; color: var(--db-text-muted); margin-bottom: 14px;">
+                When visitors move their cursor over this service on the homepage, a floating tilted photo card appears. You can upload your own custom photo below or keep the default template image.
+            </div>
+
+            <div style="display: grid; grid-template-columns: 140px 140px 1fr; gap: 16px; align-items: start;">
+                <!-- Current Active Image -->
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 600; color: var(--db-accent); margin-bottom: 6px;">Active Image:</div>
+                    <div style="width: 140px; height: 95px; border-radius: 8px; overflow: hidden; border: 2px solid var(--db-accent); background: #000; position: relative;">
+                        <img id="active-hover-preview" src="{{ service.hover_url|default:service.default_hover_url }}" alt="Active Hover Image" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    {% if service.hover_image %}
+                        <div style="margin-top: 6px;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: #ff6b6b; cursor: pointer;">
+                                <input type="checkbox" name="clear_hover_image" value="1">
+                                <span>Reset to Default</span>
+                            </label>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Default Template Image Reference -->
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 500; color: var(--db-text-muted); margin-bottom: 6px;">Default Template:</div>
+                    <div style="width: 140px; height: 95px; border-radius: 8px; overflow: hidden; border: 1px solid var(--db-border); background: #000; opacity: 0.75;">
+                        <img src="{{ service.default_hover_url }}" alt="Default Hover Image" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div style="font-size: 0.68rem; color: #777; margin-top: 4px;">Original Framer photo</div>
+                </div>
+
+                <!-- Upload New Hover Image -->
+                <div>
+                    <div style="font-size: 0.72rem; font-weight: 500; color: #fff; margin-bottom: 6px;">Upload New Hover Image:</div>
+                    <div class="image-upload-box" onclick="document.getElementById('service_hover_input').click()" style="cursor: pointer; padding: 18px 14px; text-align: center; border: 2px dashed var(--db-border); border-radius: var(--radius-md); background: #121214;">
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--db-accent);">Click to browse image</div>
+                        <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 2px;">PNG, JPG, WEBP up to 5MB</div>
+                        <input type="file" id="service_hover_input" name="hover_image" class="form-control" accept="image/*" style="display: none;" onchange="previewHoverImage(this)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: var(--radius-md);">
             <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; margin-bottom: 0;">
                 <input type="checkbox" name="is_active" {% if not is_edit or service.is_active %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--db-accent);">
@@ -56,4 +104,19 @@
         </div>
     </form>
 </div>
+
+<script>
+function previewHoverImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var preview = document.getElementById('active-hover-preview');
+            if (preview) {
+                preview.src = e.target.result;
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 {% endblock %}
