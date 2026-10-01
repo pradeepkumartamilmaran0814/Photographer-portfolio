@@ -1,6 +1,86 @@
 {% extends "dashboard/base.html" %}
 
 {% block content %}
+<!-- Website Page Editors (Direct Page-by-Page Management) -->
+<div style="margin-bottom: 28px;">
+    <div style="font-size: 0.8rem; font-weight: 700; letter-spacing: 1.2px; color: var(--db-accent); text-transform: uppercase; margin-bottom: 12px;">
+        WEBSITE PAGES & LIVE EDITORS
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <!-- 1. Home Page -->
+        <div style="padding: 20px; background: #121214; border: 1px solid var(--db-border); border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="font-size: 1.8rem;">🏠</span>
+                    <span class="badge badge-accent" style="font-family: monospace; font-size: 0.72rem;">http://127.0.0.1:8000/</span>
+                </div>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 6px;">Home Page</h3>
+                <p style="font-size: 0.78rem; color: var(--db-text-muted); line-height: 1.4; margin: 0 0 16px;">
+                    Hero roles, 3D card photos, "What I Can Do For You" services & hover cards, stats counters.
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="{% url 'portfolio:dashboard_page_home' %}" class="btn btn-accent btn-sm" style="flex: 1; text-align: center;">Edit Page ✎</a>
+                <a href="/" target="_blank" class="btn btn-outline btn-sm" title="Open Live Home Page">↗</a>
+            </div>
+        </div>
+
+        <!-- 2. About Page -->
+        <div style="padding: 20px; background: #121214; border: 1px solid var(--db-border); border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="font-size: 1.8rem;">👤</span>
+                    <span class="badge badge-accent" style="font-family: monospace; font-size: 0.72rem;">/about</span>
+                </div>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 6px;">About Page</h3>
+                <p style="font-size: 0.78rem; color: var(--db-text-muted); line-height: 1.4; margin: 0 0 16px;">
+                    Bio stories, portrait photo, career journey timeline ("Discover My Journey"), CV download.
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="{% url 'portfolio:dashboard_page_about' %}" class="btn btn-accent btn-sm" style="flex: 1; text-align: center;">Edit Page ✎</a>
+                <a href="/about/" target="_blank" class="btn btn-outline btn-sm" title="Open Live About Page">↗</a>
+            </div>
+        </div>
+
+        <!-- 3. Projects Page -->
+        <div style="padding: 20px; background: #121214; border: 1px solid var(--db-border); border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="font-size: 1.8rem;">📁</span>
+                    <span class="badge badge-accent" style="font-family: monospace; font-size: 0.72rem;">/projects</span>
+                </div>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 6px;">Projects Page</h3>
+                <p style="font-size: 0.78rem; color: var(--db-text-muted); line-height: 1.4; margin: 0 0 16px;">
+                    {{ projects_count }} case studies, client work, categories, cover photos, detail articles.
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="{% url 'portfolio:dashboard_projects' %}" class="btn btn-accent btn-sm" style="flex: 1; text-align: center;">Manage Projects</a>
+                <a href="/projects/" target="_blank" class="btn btn-outline btn-sm" title="Open Live Projects Page">↗</a>
+            </div>
+        </div>
+
+        <!-- 4. Blogs Page -->
+        <div style="padding: 20px; background: #121214; border: 1px solid var(--db-border); border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; transition: border-color 0.2s;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="font-size: 1.8rem;">📝</span>
+                    <span class="badge badge-accent" style="font-family: monospace; font-size: 0.72rem;">/blogs</span>
+                </div>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 6px;">Blogs Page</h3>
+                <p style="font-size: 0.78rem; color: var(--db-text-muted); line-height: 1.4; margin: 0 0 16px;">
+                    {{ blogs_count }} published articles, creative insights, tutorials, author info, cover photos.
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="{% url 'portfolio:dashboard_blogs' %}" class="btn btn-accent btn-sm" style="flex: 1; text-align: center;">Manage Articles</a>
+                <a href="/blogs/" target="_blank" class="btn btn-outline btn-sm" title="Open Live Blogs Page">↗</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Quick Stats Cards -->
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
     <div class="stat-card">

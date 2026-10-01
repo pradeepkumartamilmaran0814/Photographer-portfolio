@@ -36,15 +36,29 @@ class Project(models.Model):
     industry = models.CharField(max_length=100, blank=True, default="Tech")
     duration = models.CharField(max_length=50, blank=True, default="4 weeks")
     
-    # Images
+    # Hero Cover Image
     cover_image = models.ImageField(upload_to="projects/", blank=True, null=True)
-    cover_image_static = models.CharField(max_length=255, blank=True, help_text="Filename of static image in /static/images/")
+    cover_image_static = models.CharField(max_length=255, blank=True, help_text="Static hash or filename")
     
-    # Case study sections
+    # Case study sections (Matching project.pdf exactly)
     problem = models.TextField(blank=True)
+    problem_image = models.ImageField(upload_to="projects/case_study/", blank=True, null=True)
+    problem_image_static = models.CharField(max_length=255, blank=True)
+
     solution = models.TextField(blank=True)
+    solution_image_1 = models.ImageField(upload_to="projects/case_study/", blank=True, null=True)
+    solution_image_1_static = models.CharField(max_length=255, blank=True)
+    solution_image_2 = models.ImageField(upload_to="projects/case_study/", blank=True, null=True)
+    solution_image_2_static = models.CharField(max_length=255, blank=True)
+
     challenge = models.TextField(blank=True)
+
     summary = models.TextField(blank=True)
+    summary_image_1 = models.ImageField(upload_to="projects/case_study/", blank=True, null=True)
+    summary_image_1_static = models.CharField(max_length=255, blank=True)
+    summary_image_2 = models.ImageField(upload_to="projects/case_study/", blank=True, null=True)
+    summary_image_2_static = models.CharField(max_length=255, blank=True)
+
     live_link = models.URLField(blank=True)
     
     is_featured = models.BooleanField(default=True)
@@ -65,8 +79,48 @@ class Project(models.Model):
         if self.cover_image:
             return self.cover_image.url
         if self.cover_image_static:
-            return f"/static/images/{self.cover_image_static}"
+            return f"/framerusercontent.com/images/{self.cover_image_static}.jpg"
         return "/static/images/0WpkDjML9SeFblp0HONUfUfivIs.jpg"
+
+    @property
+    def problem_img_url(self):
+        if self.problem_image:
+            return self.problem_image.url
+        if self.problem_image_static:
+            return f"/framerusercontent.com/images/{self.problem_image_static}.jpg"
+        return ""
+
+    @property
+    def solution_img_1_url(self):
+        if self.solution_image_1:
+            return self.solution_image_1.url
+        if self.solution_image_1_static:
+            return f"/framerusercontent.com/images/{self.solution_image_1_static}.jpg"
+        return ""
+
+    @property
+    def solution_img_2_url(self):
+        if self.solution_image_2:
+            return self.solution_image_2.url
+        if self.solution_image_2_static:
+            return f"/framerusercontent.com/images/{self.solution_image_2_static}.jpg"
+        return ""
+
+    @property
+    def summary_img_1_url(self):
+        if self.summary_image_1:
+            return self.summary_image_1.url
+        if self.summary_image_1_static:
+            return f"/framerusercontent.com/images/{self.summary_image_1_static}.jpg"
+        return ""
+
+    @property
+    def summary_img_2_url(self):
+        if self.summary_image_2:
+            return self.summary_image_2.url
+        if self.summary_image_2_static:
+            return f"/framerusercontent.com/images/{self.summary_image_2_static}.jpg"
+        return ""
 
     def __str__(self):
         return self.title
@@ -279,6 +333,16 @@ class SiteSettings(models.Model):
     about_text = models.TextField(
         default="Hi, I'm Duncan — a digital designer and Framer developer passionate about crafting meaningful and impactful digital experiences."
     )
+    about_headline = models.TextField(
+        default="I'm a digital designer and Framer developer passionate about crafting meaningful, user-centered experiences."
+    )
+    about_subheadline = models.TextField(
+        default="With a strong foundation in visual design and a deep understanding of interactive systems, I bring ideas to life through thoughtful design, smooth animations, and responsive layouts."
+    )
+    about_journey_subtitle = models.TextField(
+        default="From curious creator to full-time designer, my path has been shaped by a passion for crafting purposeful, user-centered digital experiences—blending storytelling, structure, and design into every project."
+    )
+    about_image = models.ImageField(upload_to="profile/", blank=True, null=True, help_text="Portrait photo shown on About page")
     
     # Stats & Numbers
     stat_experience_num = models.CharField(max_length=20, default="6+")

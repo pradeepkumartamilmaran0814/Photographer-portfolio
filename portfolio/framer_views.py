@@ -3,9 +3,24 @@ import re
 import json
 from django.http import HttpResponse, Http404
 from django.conf import settings
-from .models import Project, BlogPost, SiteSettings, Category, Service, Testimonial, FAQ
+from .models import Project, BlogPost, SiteSettings, Category, Service, Testimonial, FAQ, Experience
 
 FRAMER_DIR = os.path.join(settings.BASE_DIR, "portavia.framer.website")
+
+
+def _replace_image_hash(content, hash_val, new_url):
+    if not hash_val or not new_url:
+        return content
+    clean_hash = hash_val.replace('.jpg', '').replace('.jpeg', '').replace('.png', '').replace('.webp', '')
+    pat = rf'(?:https?://[^"\'\s]+/|[.\/]*)(?:framerusercontent\.com/images/|static/images/){clean_hash}[^"\'\s]*'
+    content = re.sub(pat, new_url, content)
+    def _clean_tag(m):
+        tag = m.group(0)
+        tag = re.sub(r'\s*srcset="[^"]*"', '', tag)
+        tag = re.sub(r'\s*sizes="[^"]*"', '', tag)
+        return tag
+    content = re.sub(rf'<img[^>]+src="[^"]*{re.escape(new_url)}"[^>]*>', _clean_tag, content)
+    return content
 
 
 def _inject_dynamic_data(html, context_type="general", item_slug=None):
@@ -20,6 +35,11 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
     active_testimonials = list(Testimonial.objects.filter(is_active=True))
     active_faqs = list(FAQ.objects.filter(is_active=True))
     active_blogs = list(BlogPost.objects.filter(is_published=True))
+    active_experiences = list(Experience.objects.all())
+
+    current_project_obj = None
+    if context_type == "project" and item_slug:
+        current_project_obj = Project.objects.filter(slug=item_slug).first()
 
     payload = {
         "designer_name": site_settings.designer_name or "Duncan Robert",
@@ -27,8 +47,23 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
         "hero_role_2": site_settings.hero_role_2 or "DESIGNER",
         "hero_subheadline": site_settings.hero_subheadline or "",
         "about_text": site_settings.about_text or site_settings.bio or "",
+        "about_headline": site_settings.about_headline or "",
+        "about_subheadline": site_settings.about_subheadline or "",
+        "about_journey_subtitle": site_settings.about_journey_subtitle or "",
+        "about_image_url": site_settings.about_image.url if site_settings.about_image else (site_settings.avatar_image.url if site_settings.avatar_image else ""),
+        "resume_url": site_settings.resume_file.url if site_settings.resume_file else "",
         "avatar_url": site_settings.avatar_image.url if site_settings.avatar_image else "",
         "services_image_url": site_settings.services_image.url if site_settings.services_image else "",
+        "experiences": [
+            {
+                "id": exp.id,
+                "role": exp.role,
+                "company": exp.company,
+                "period": exp.period,
+                "description": exp.description,
+            }
+            for exp in active_experiences
+        ],
         "stat_experience_num": site_settings.stat_experience_num or "6+",
         "stat_experience_label": site_settings.stat_experience_label or "Years of Experience",
         "stat_projects_num": site_settings.stat_projects_num or "50+",
@@ -60,10 +95,38 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
                 "title": p.title,
                 "category": p.category.name if p.category else "Design",
                 "cover_url": p.cover_url,
+                "cover_hash": p.cover_image_static,
                 "tagline": p.tagline or p.short_description
             }
             for p in active_projects
         ],
+        "current_project": {
+            "id": current_project_obj.id,
+            "slug": current_project_obj.slug,
+            "title": current_project_obj.title,
+            "category": current_project_obj.category.name if current_project_obj.category else "Design",
+            "tagline": current_project_obj.tagline or current_project_obj.short_description,
+            "client": current_project_obj.client,
+            "year": current_project_obj.year,
+            "industry": current_project_obj.industry,
+            "duration": current_project_obj.duration,
+            "cover_url": current_project_obj.cover_url,
+            "cover_hash": current_project_obj.cover_image_static,
+            "problem": current_project_obj.problem,
+            "problem_img_url": current_project_obj.problem_img_url,
+            "problem_img_hash": current_project_obj.problem_image_static,
+            "solution": current_project_obj.solution,
+            "solution_img_1_url": current_project_obj.solution_img_1_url,
+            "solution_img_1_hash": current_project_obj.solution_image_1_static,
+            "solution_img_2_url": current_project_obj.solution_img_2_url,
+            "solution_img_2_hash": current_project_obj.solution_image_2_static,
+            "challenge": current_project_obj.challenge,
+            "summary": current_project_obj.summary,
+            "summary_img_1_url": current_project_obj.summary_img_1_url,
+            "summary_img_1_hash": current_project_obj.summary_image_1_static,
+            "summary_img_2_url": current_project_obj.summary_img_2_url,
+            "summary_img_2_hash": current_project_obj.summary_image_2_static,
+        } if current_project_obj else None,
         "services": [
             {
                 "id": s.id,
@@ -318,6 +381,69 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
                     });
                 }
 
+                // About Page Specific Elements Sync
+                if (DATA.about_headline) {
+                    document.querySelectorAll('p').forEach(function(p) {
+                        if (p.textContent.indexOf("crafting meaningful, user-centered") !== -1 || p.textContent.indexOf("I'm a digital designer and Framer developer") !== -1) {
+                            if (p.textContent.trim() !== DATA.about_headline) p.textContent = DATA.about_headline;
+                        }
+                    });
+                }
+                if (DATA.about_subheadline) {
+                    document.querySelectorAll('p').forEach(function(p) {
+                        if (p.textContent.indexOf("strong foundation in visual design") !== -1 || p.textContent.indexOf("bring ideas to life") !== -1) {
+                            if (p.textContent.trim() !== DATA.about_subheadline) p.textContent = DATA.about_subheadline;
+                        }
+                    });
+                }
+                if (DATA.about_journey_subtitle) {
+                    document.querySelectorAll('.framer-7n26aa p').forEach(function(p) {
+                        if (p.textContent.trim() !== DATA.about_journey_subtitle) p.textContent = DATA.about_journey_subtitle;
+                    });
+                }
+                if (DATA.about_image_url) {
+                    document.querySelectorAll('img[alt="Portrait of portfolio creator"]').forEach(function(img) {
+                        if (img.src !== DATA.about_image_url) {
+                            img.removeAttribute('srcset');
+                            img.src = DATA.about_image_url;
+                        }
+                    });
+                }
+                if (DATA.resume_url) {
+                    document.querySelectorAll('a').forEach(function(a) {
+                        var txt = a.textContent.toLowerCase();
+                        if (txt.indexOf("download cv") !== -1 || txt.indexOf("resume") !== -1) {
+                            a.href = DATA.resume_url;
+                            a.setAttribute("download", "");
+                        }
+                    });
+                }
+
+                // About Page Career Journey Timeline (.framer-9gPbo)
+                if (DATA.experiences && DATA.experiences.length > 0) {
+                    var expCards = document.querySelectorAll('.framer-9gPbo');
+                    DATA.experiences.forEach(function(exp, idx) {
+                        if (idx < expCards.length) {
+                            var card = expCards[idx];
+                            if (card.style.display === "none") card.style.display = "";
+                            var h3 = card.querySelector('h3');
+                            if (h3 && exp.role && h3.textContent.trim() !== exp.role) {
+                                h3.textContent = exp.role;
+                            }
+                            var ps = card.querySelectorAll('p');
+                            if (ps.length >= 1 && exp.company && ps[0].textContent.trim() !== exp.company) {
+                                ps[0].textContent = exp.company;
+                            }
+                            if (ps.length >= 2 && exp.period && ps[1].textContent.trim() !== exp.period) {
+                                ps[1].textContent = exp.period;
+                            }
+                        }
+                    });
+                    for (var eIdx = DATA.experiences.length; eIdx < expCards.length; eIdx++) {
+                        if (expCards[eIdx].style.display !== "none") expCards[eIdx].style.display = "none";
+                    }
+                }
+
                 if (DATA.services_subtitle) {
                     document.querySelectorAll('.framer-dhjg6f p').forEach(function(el) {
                         if (el.textContent.trim() !== DATA.services_subtitle) {
@@ -388,7 +514,7 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
                     });
                 }
 
-                // 3. Projects Sync (Edit & Deletion)
+                // 3. Projects Sync (Edit, Cover Image & Deletion)
                 var activeProjectSlugs = {};
                 DATA.projects.forEach(function(p) { activeProjectSlugs[p.slug] = p; });
 
@@ -409,9 +535,96 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
                             if (h && proj.title && h.textContent.trim() !== proj.title) {
                                 h.textContent = proj.title;
                             }
+                            if (proj.cover_url) {
+                                var img = card.querySelector('img');
+                                if (img && img.src !== proj.cover_url) {
+                                    img.removeAttribute('srcset');
+                                    img.removeAttribute('sizes');
+                                    img.src = proj.cover_url;
+                                }
+                            }
                         }
                     }
                 });
+
+                // 3.1. Project Case Study Live Sync (Matching project.pdf)
+                if (DATA.current_project) {
+                    var cp = DATA.current_project;
+                    // H1 Title
+                    document.querySelectorAll('h1').forEach(function(h1) {
+                        if (cp.title && h1.textContent.trim() !== cp.title) h1.textContent = cp.title;
+                    });
+                    // Client, Year, Industry, Duration Meta Table
+                    document.querySelectorAll('p').forEach(function(p) {
+                        var t = p.textContent.trim().toLowerCase();
+                        var parent = p.parentElement;
+                        var row = parent ? parent.parentElement : null;
+                        if (row) {
+                            var ps = row.querySelectorAll('p');
+                            if (ps.length >= 2) {
+                                var label = ps[0].textContent.trim().toLowerCase();
+                                if (label.indexOf('client') !== -1 && cp.client && ps[1].textContent.trim() !== cp.client) {
+                                    ps[1].textContent = cp.client;
+                                }
+                                if (label.indexOf('year') !== -1 && cp.year && ps[1].textContent.trim() !== cp.year) {
+                                    ps[1].textContent = cp.year;
+                                }
+                                if (label.indexOf('industry') !== -1 && cp.industry && ps[1].textContent.trim() !== cp.industry) {
+                                    ps[1].textContent = cp.industry;
+                                }
+                                if (label.indexOf('duration') !== -1 && cp.duration && ps[1].textContent.trim() !== cp.duration) {
+                                    ps[1].textContent = cp.duration;
+                                }
+                            }
+                        }
+                    });
+                    // Case Study Content: Problem, Solution, Challenge, Summary
+                    document.querySelectorAll('h3').forEach(function(h3) {
+                        var ht = h3.textContent.trim().toLowerCase();
+                        var pBox = h3.parentElement ? h3.parentElement.querySelector('p') : null;
+                        if (!pBox && h3.parentElement && h3.parentElement.nextElementSibling) {
+                            pBox = h3.parentElement.nextElementSibling.querySelector('p');
+                        }
+                        if (ht.indexOf('problem') !== -1 && cp.problem && pBox && pBox.textContent.trim() !== cp.problem) {
+                            pBox.textContent = cp.problem;
+                        }
+                        if (ht.indexOf('solution') !== -1 && cp.solution && pBox && pBox.textContent.trim() !== cp.solution) {
+                            pBox.textContent = cp.solution;
+                        }
+                        if (ht.indexOf('challenge') !== -1 && cp.challenge && pBox && pBox.textContent.trim() !== cp.challenge) {
+                            pBox.textContent = cp.challenge;
+                        }
+                        if (ht.indexOf('summary') !== -1 && cp.summary && pBox && pBox.textContent.trim() !== cp.summary) {
+                            pBox.textContent = cp.summary;
+                        }
+                    });
+                    // Case Study Images (Cover + 5 Content Blocks)
+                    var pImages = [
+                        { url: cp.cover_url, hash: cp.cover_hash, alt: "Cover" },
+                        { url: cp.problem_img_url, hash: cp.problem_img_hash, alt: "Content Image - 1" },
+                        { url: cp.solution_img_1_url, hash: cp.solution_img_1_hash, alt: "Content Image - 2" },
+                        { url: cp.solution_img_2_url, hash: cp.solution_img_2_hash, alt: "Content Image - 3" },
+                        { url: cp.summary_img_1_url, hash: cp.summary_img_1_hash, alt: "Content Image - 4" },
+                        { url: cp.summary_img_2_url, hash: cp.summary_img_2_hash, alt: "Content Image - 5" }
+                    ];
+                    pImages.forEach(function(item) {
+                        if (item.url && (item.hash || item.alt)) {
+                            var sel = [];
+                            if (item.hash) {
+                                sel.push('img[src*="' + item.hash + '"]');
+                                sel.push('img[srcset*="' + item.hash + '"]');
+                            }
+                            if (item.alt) {
+                                sel.push('img[alt*="' + item.alt + '"]');
+                            }
+                            document.querySelectorAll(sel.join(', ')).forEach(function(img) {
+                                img.removeAttribute('srcset');
+                                img.removeAttribute('sizes');
+                                if (img.src !== item.url) img.src = item.url;
+                            });
+                        }
+                    });
+                }
 
                 // 4. Blogs Sync (Edit & Deletion)
                 var activeBlogSlugs = {};
@@ -800,32 +1013,47 @@ def _inject_dynamic_data(html, context_type="general", item_slug=None):
     html = re.sub(r'<div class="framer-1fin31n-container[^"]*"[^>]*>.*?</div></div>', '', html, flags=re.DOTALL)
     html = re.sub(r'<div id="__framer-badge-container"[^>]*>.*?</div>\s*</div>', '', html, flags=re.DOTALL)
 
+    # 3.8. Project Cover Images SSR replacement across all active projects
+    for p in active_projects:
+        if p.cover_image and p.cover_image_static:
+            html = _replace_image_hash(html, p.cover_image_static, p.cover_image.url)
+
+    # 3.9. Project Detail Page Live SSR replacement (Matching project.pdf)
+    if current_project_obj:
+        cp = current_project_obj
+        if cp.title:
+            html = re.sub(r'<title>.*?</title>', f'<title>{cp.title} - DigiPorto</title>', html)
+            html = re.sub(r'(<h1[^>]*>).*?(</h1>)', rf'\g<1>{cp.title}\g<2>', html)
+        if cp.client:
+            html = re.sub(r'(Client\s*:\s*</p>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.client}\g<2>', html, flags=re.DOTALL)
+        if cp.year:
+            html = re.sub(r'(Year\s*:\s*</p>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.year}\g<2>', html, flags=re.DOTALL)
+        if cp.duration:
+            html = re.sub(r'(Project Duration\s*:\s*</p>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.duration}\g<2>', html, flags=re.DOTALL)
+        if cp.industry:
+            html = re.sub(r'(Industry\s*:\s*</p>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.industry}\g<2>', html, flags=re.DOTALL)
+        if cp.problem:
+            html = re.sub(r'(Problem\s*:\s*</h3>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.problem}\g<2>', html, flags=re.DOTALL)
+        if cp.solution:
+            html = re.sub(r'(Solution\s*:\s*</h3>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.solution}\g<2>', html, flags=re.DOTALL)
+        if cp.challenge:
+            html = re.sub(r'(Challenge\s*:\s*</h3>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.challenge}\g<2>', html, flags=re.DOTALL)
+        if cp.summary:
+            html = re.sub(r'(Summary\s*:\s*</h3>.*?<p[^>]*>).*?(</p>)', rf'\g<1>{cp.summary}\g<2>', html, flags=re.DOTALL)
+        if cp.problem_image and cp.problem_image_static:
+            html = _replace_image_hash(html, cp.problem_image_static, cp.problem_image.url)
+        if cp.solution_image_1 and cp.solution_image_1_static:
+            html = _replace_image_hash(html, cp.solution_image_1_static, cp.solution_image_1.url)
+        if cp.solution_image_2 and cp.solution_image_2_static:
+            html = _replace_image_hash(html, cp.solution_image_2_static, cp.solution_image_2.url)
+        if cp.summary_image_1 and cp.summary_image_1_static:
+            html = _replace_image_hash(html, cp.summary_image_1_static, cp.summary_image_1.url)
+        if cp.summary_image_2 and cp.summary_image_2_static:
+            html = _replace_image_hash(html, cp.summary_image_2_static, cp.summary_image_2.url)
+
     # 4. Now inject the clean synchronizer script (untouched by replacements)
     sync_script = sync_script_template.replace("__PAYLOAD_JSON__", payload_json)
     html = html.replace('</body>', sync_script)
-
-    # 4. If on project detail page, dynamically update project content
-    if context_type == "project" and item_slug:
-        try:
-            proj = Project.objects.get(slug=item_slug)
-            if proj.tagline:
-                # Replace original tagline if found
-                pass
-            if proj.client:
-                html = html.replace("Studio Prism", proj.client)
-            if proj.year:
-                html = html.replace("2025", str(proj.year))
-            if proj.industry:
-                html = html.replace("Tech", proj.industry)
-            if proj.duration:
-                html = html.replace("4 weeks", proj.duration)
-            if proj.cover_url:
-                # Replace main cover image
-                orig_img = proj.cover_image_static
-                if orig_img and proj.cover_image:
-                    html = html.replace(orig_img, proj.cover_image.url.lstrip('/'))
-        except Project.DoesNotExist:
-            pass
 
     # 5. Fix link targets so they route cleanly through Django
     html = re.sub(r'href="about\.html"', 'href="/about/"', html)

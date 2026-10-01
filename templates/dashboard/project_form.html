@@ -1,24 +1,40 @@
 {% extends "dashboard/base.html" %}
 
 {% block content %}
-<div class="db-card" style="max-width: 950px; margin: 0 auto;">
-    <div class="db-card-header">
-        <div class="db-card-title">
-            {% if is_edit %}Edit Project: {{ project.title }}{% else %}Create New Project{% endif %}
+<div class="db-card" style="max-width: 1000px; margin: 0 auto;">
+    <div class="db-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <div class="db-card-title" style="font-size: 1.3rem; font-weight: 700;">
+                {% if is_edit %}Edit Project: {{ project.title }}{% else %}Create New Project{% endif %}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--db-text-muted); margin-top: 3px;">
+                Manage project hero, metadata, and detailed case study sections from project.pdf
+            </div>
         </div>
-        <a href="{% url 'portfolio:dashboard_projects' %}" class="btn btn-outline btn-sm">
-            ← Back to Projects
-        </a>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'portfolio:dashboard_projects' %}" class="btn btn-outline btn-sm">
+                ← Back to Projects
+            </a>
+            {% if is_edit and project.slug %}
+                <a href="/projects/{{ project.slug }}/" target="_blank" class="btn btn-outline btn-sm" style="border-color: var(--db-accent); color: var(--db-accent);">
+                    👁️ View Live Case Study ↗
+                </a>
+            {% endif %}
+        </div>
     </div>
 
     <form method="POST" enctype="multipart/form-data" class="db-card-body">
         {% csrf_token %}
 
-        <!-- Basic Info -->
+        <!-- SECTION 1: BASIC & META INFO -->
+        <div style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>📌</span> Project Overview & Metadata
+        </div>
+
         <div class="form-grid">
             <div class="form-group full-width">
                 <label class="form-label">Project Title *</label>
-                <input type="text" name="title" required value="{{ project.title|default:'' }}" class="form-control" placeholder="e.g. Obsidian Prisms Composition" maxlength="50" data-char-rec="10–35 chars" data-char-hint="Main project showcase title">
+                <input type="text" name="title" required value="{{ project.title|default:'' }}" class="form-control" placeholder="e.g. Summer Vibes Festival Campaign" maxlength="70">
             </div>
 
             <div class="form-group">
@@ -35,26 +51,26 @@
 
             <div class="form-group">
                 <label class="form-label">Client Name</label>
-                <input type="text" name="client" value="{{ project.client|default:'Studio Prism' }}" class="form-control" placeholder="e.g. Studio Prism" maxlength="35" data-char-hint="Client or studio name">
+                <input type="text" name="client" value="{{ project.client|default:'FestivalWorks' }}" class="form-control" placeholder="e.g. FestivalWorks" maxlength="40">
             </div>
 
             <div class="form-group">
                 <label class="form-label">Year</label>
-                <input type="text" name="year" value="{{ project.year|default:'2025' }}" class="form-control" placeholder="2025" maxlength="10" data-char-hint="e.g. 2025">
+                <input type="text" name="year" value="{{ project.year|default:'2024' }}" class="form-control" placeholder="e.g. 2024" maxlength="15">
             </div>
 
             <div class="form-group">
                 <label class="form-label">Industry</label>
-                <input type="text" name="industry" value="{{ project.industry|default:'Tech' }}" class="form-control" placeholder="e.g. Tech, FinTech, Fashion" maxlength="25" data-char-hint="e.g. Tech, SaaS">
+                <input type="text" name="industry" value="{{ project.industry|default:'Event / Festival' }}" class="form-control" placeholder="e.g. Event / Festival" maxlength="35">
             </div>
 
             <div class="form-group">
-                <label class="form-label">Duration</label>
-                <input type="text" name="duration" value="{{ project.duration|default:'4 weeks' }}" class="form-control" placeholder="4 weeks" maxlength="20" data-char-hint="e.g. 4 weeks, 2 months">
+                <label class="form-label">Project Duration</label>
+                <input type="text" name="duration" value="{{ project.duration|default:'6 weeks' }}" class="form-control" placeholder="e.g. 6 weeks" maxlength="25">
             </div>
 
             <div class="form-group" style="justify-content: center;">
-                <label class="form-label">Show on Homepage</label>
+                <label class="form-label">Homepage Display</label>
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-size: 0.95rem; margin-top: 8px;">
                     <input type="checkbox" name="is_featured" {% if project.is_featured or not is_edit %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--db-accent);">
                     Featured on Homepage Grid
@@ -62,62 +78,178 @@
             </div>
 
             <div class="form-group full-width">
-                <label class="form-label">Tagline / Short Summary</label>
-                <textarea name="tagline" rows="2" class="form-control" placeholder="Brief 1-2 sentence description of the project..." maxlength="160" data-char-rec="40–120 chars" data-char-hint="Displays in project card preview">{{ project.tagline|default:'' }}</textarea>
+                <label class="form-label">Tagline / Subtitle (Displays under H1 & in Card Previews)</label>
+                <textarea name="tagline" rows="2" class="form-control" placeholder="Portavia is a clean Framer template for showcasing creative work. Perfect for designers and creatives.">{{ project.tagline|default:'' }}</textarea>
             </div>
         </div>
 
-        <!-- Cover Image Upload -->
-        <div class="form-group" style="margin-top: 10px;">
-            <label class="form-label">Cover Image</label>
+        <!-- SECTION 2: HERO COVER IMAGE -->
+        <div style="margin-top: 32px; border-top: 1px solid var(--db-border); padding-top: 24px;">
+            <div style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                <span>🖼️</span> Hero Cover Image
+            </div>
+            <div style="font-size: 0.85rem; color: var(--db-text-muted); margin-bottom: 16px;">
+                Used as the main hero banner on the case study page, homepage project grid, and portfolio directory.
+            </div>
+
             <div class="image-upload-box" onclick="document.getElementById('cover_image_input').click()">
                 <div style="font-size: 1.8rem; margin-bottom: 6px;">📷</div>
-                <div style="font-weight: 600; color: #fff; font-size: 0.95rem;">Click to upload a new project cover image</div>
-                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">PNG, JPG, WebP up to 10MB</div>
-                <input type="file" id="cover_image_input" name="cover_image" accept="image/*" style="display: none;">
+                <div style="font-weight: 600; color: #fff; font-size: 0.95rem;">Click to upload a new Hero Cover Image</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">PNG, JPG, WebP up to 15MB</div>
+                <input type="file" id="cover_image_input" name="cover_image" accept="image/*" style="display: none;" onchange="previewSelectedImage(this, 'live-cover-preview')">
                 
-                {% if project.cover_url %}
-                    <div style="margin-top: 14px;">
-                        <span style="font-size: 0.78rem; color: var(--db-text-muted); display: block; margin-bottom: 6px;">Current Cover Image:</span>
-                        <img src="{{ project.cover_url }}" alt="Preview" class="live-preview-img" id="live-cover-preview">
+                <div style="margin-top: 14px;">
+                    <span style="font-size: 0.78rem; color: var(--db-text-muted); display: block; margin-bottom: 6px;">Current Hero Cover Image:</span>
+                    <img src="{{ project.cover_url }}" alt="Cover Preview" class="live-preview-img" id="live-cover-preview" style="max-height: 240px; border-radius: 12px; border: 1px solid var(--db-border); object-fit: cover; width: 100%; max-width: 500px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: CASE STUDY BREAKDOWN (MATCHING project.pdf) -->
+        <div style="margin-top: 36px; border-top: 1px solid var(--db-border); padding-top: 24px;">
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--db-accent); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                <span>📖</span> Case Study Breakdown (project.pdf Structure)
+            </div>
+            <div style="font-size: 0.85rem; color: var(--db-text-muted); margin-bottom: 24px;">
+                Customize the exact narrative headings and content gallery images shown in your live case study.
+            </div>
+
+            <!-- PROBLEM SECTION -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <div style="font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: #e63946; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem;">1</span>
+                    PROBLEM :
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Problem Statement Description</label>
+                    <textarea name="problem" rows="4" class="form-control" placeholder="Promoting summer festivals in a saturated market is a significant challenge...">{{ project.problem|default:'' }}</textarea>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label class="form-label">Problem Section Visual (Content Image 1)</label>
+                    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                        <input type="file" name="problem_image" id="problem_img_input" accept="image/*" class="form-control" style="max-width: 320px;" onchange="previewSelectedImage(this, 'problem-img-preview')">
+                        {% if project.problem_img_url %}
+                            <img src="{{ project.problem_img_url }}" id="problem-img-preview" alt="Problem Visual" style="width: 140px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                        {% else %}
+                            <img id="problem-img-preview" style="display: none; width: 140px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                        {% endif %}
                     </div>
-                {% endif %}
+                </div>
+            </div>
+
+            <!-- SOLUTION SECTION -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <div style="font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem;">2</span>
+                    SOLUTION :
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Design Solution Description</label>
+                    <textarea name="solution" rows="4" class="form-control" placeholder="To address this, a vibrant and cohesive set of promotional materials was developed...">{{ project.solution|default:'' }}</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 14px;">
+                    <div class="form-group">
+                        <label class="form-label">Solution Image 1 (Content Image 2)</label>
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <input type="file" name="solution_image_1" accept="image/*" class="form-control" onchange="previewSelectedImage(this, 'sol1-img-preview')">
+                            {% if project.solution_img_1_url %}
+                                <img src="{{ project.solution_img_1_url }}" id="sol1-img-preview" alt="Solution Visual 1" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% else %}
+                                <img id="sol1-img-preview" style="display: none; width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Solution Image 2 (Content Image 3)</label>
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <input type="file" name="solution_image_2" accept="image/*" class="form-control" onchange="previewSelectedImage(this, 'sol2-img-preview')">
+                            {% if project.solution_img_2_url %}
+                                <img src="{{ project.solution_img_2_url }}" id="sol2-img-preview" alt="Solution Visual 2" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% else %}
+                                <img id="sol2-img-preview" style="display: none; width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHALLENGE SECTION -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <div style="font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: #e76f51; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem;">3</span>
+                    CHALLENGE :
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Key Challenge Description</label>
+                    <textarea name="challenge" rows="4" class="form-control" placeholder="The main challenge was to create visuals that would appeal to a broad, diverse audience...">{{ project.challenge|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <!-- SUMMARY SECTION -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <div style="font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: #3a86ff; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem;">4</span>
+                    SUMMARY :
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Summary & Results Description</label>
+                    <textarea name="summary" rows="4" class="form-control" placeholder="The Summer Vibes Festival Campaign successfully captured the lively spirit...">{{ project.summary|default:'' }}</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 14px;">
+                    <div class="form-group">
+                        <label class="form-label">Summary Image 1 (Content Image 4)</label>
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <input type="file" name="summary_image_1" accept="image/*" class="form-control" onchange="previewSelectedImage(this, 'summ1-img-preview')">
+                            {% if project.summary_img_1_url %}
+                                <img src="{{ project.summary_img_1_url }}" id="summ1-img-preview" alt="Summary Visual 1" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% else %}
+                                <img id="summ1-img-preview" style="display: none; width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Summary Image 2 (Content Image 5)</label>
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <input type="file" name="summary_image_2" accept="image/*" class="form-control" onchange="previewSelectedImage(this, 'summ2-img-preview')">
+                            {% if project.summary_img_2_url %}
+                                <img src="{{ project.summary_img_2_url }}" id="summ2-img-preview" alt="Summary Visual 2" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% else %}
+                                <img id="summ2-img-preview" style="display: none; width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--db-border);">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Case Study Breakdown -->
-        <div style="margin-top: 32px; border-top: 1px solid var(--db-border); padding-top: 24px;">
-            <div style="font-weight: 700; color: #fff; font-size: 1.1rem; margin-bottom: 16px;">
-                Case Study Breakdown (Optional)
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Problem Statement</label>
-                <textarea name="problem" class="form-control" placeholder="What challenge did the client face?">{{ project.problem|default:'' }}</textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Design Solution</label>
-                <textarea name="solution" class="form-control" placeholder="How did you solve the problem with design?">{{ project.solution|default:'' }}</textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Key Challenges</label>
-                <textarea name="challenge" class="form-control" placeholder="Technical or creative hurdles overcome...">{{ project.challenge|default:'' }}</textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Summary & Results</label>
-                <textarea name="summary" class="form-control" placeholder="Final impact, metrics, or project takeaway...">{{ project.summary|default:'' }}</textarea>
-            </div>
-        </div>
-
+        <!-- FORM ACTIONS -->
         <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid var(--db-border); padding-top: 20px;">
             <a href="{% url 'portfolio:dashboard_projects' %}" class="btn btn-outline">Cancel</a>
-            <button type="submit" class="btn btn-accent">
+            <button type="submit" class="btn btn-accent" style="padding: 10px 24px; font-weight: 700; font-size: 0.95rem;">
                 Save Project Changes ✓
             </button>
         </div>
     </form>
 </div>
+
+<script>
+function previewSelectedImage(input, previewId) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = document.getElementById(previewId);
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 {% endblock %}

@@ -25,9 +25,15 @@ urlpatterns = [
     path("blogs/<slug:slug>.html", framer_views.framer_blog_detail_view),
 
     # ==========================================
-    # BACKEND DASHBOARD GUI (CONTENT MANAGEMENT)
+    # BACKEND DASHBOARD GUI (PAGE-BY-PAGE EDITORS)
     # ==========================================
     path("dashboard/", dashboard_views.dashboard_index, name="dashboard_index"),
+    path("dashboard/page/home/", dashboard_views.dashboard_page_home, name="dashboard_page_home"),
+    path("dashboard/page/about/", dashboard_views.dashboard_page_about, name="dashboard_page_about"),
+    path("dashboard/page/about/experiences/new/", dashboard_views.dashboard_experience_create, name="dashboard_experience_create"),
+    path("dashboard/page/about/experiences/<int:pk>/edit/", dashboard_views.dashboard_experience_edit, name="dashboard_experience_edit"),
+    path("dashboard/page/about/experiences/<int:pk>/delete/", dashboard_views.dashboard_experience_delete, name="dashboard_experience_delete"),
+
     path("dashboard/projects/", dashboard_views.dashboard_projects, name="dashboard_projects"),
     path("dashboard/projects/new/", dashboard_views.dashboard_project_create, name="dashboard_project_create"),
     path("dashboard/projects/<str:identifier>/edit/", dashboard_views.dashboard_project_edit, name="dashboard_project_edit"),

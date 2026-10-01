@@ -1,0 +1,199 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<!-- Top Header Bar with Live Page Link -->
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 18px 24px; background: #121214; border: 1px solid var(--db-border); border-radius: var(--radius-lg);">
+    <div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">🏠</span>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0;">Home Page Editor</h2>
+            <span class="badge badge-accent" style="font-family: monospace; font-size: 0.75rem;">http://127.0.0.1:8000/</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 6px;">
+            Manage all content, headlines, photos, services, and statistics displayed on the homepage.
+        </div>
+    </div>
+    <a href="/" target="_blank" class="btn btn-accent btn-sm" style="display: flex; align-items: center; gap: 8px; padding: 10px 18px;">
+        <span>🌐 Open Live Home Page</span>
+        <span>↗</span>
+    </a>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- 01. Hero Headline & Roles -->
+    <div class="db-card" style="margin-bottom: 24px;">
+        <div class="db-card-header">
+            <div>
+                <div class="db-card-title">01. Hero Section & Main Roles</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                    Displayed prominently at the top of the homepage with 3D animation.
+                </div>
+            </div>
+        </div>
+        <div class="db-card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Designer Name</label>
+                    <input type="text" name="designer_name" class="form-control" value="{{ settings.designer_name }}" placeholder="Duncan Robert" required>
+                    <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Displayed in small uppercase above role</div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Hero Role Word 1</label>
+                    <input type="text" name="hero_role_1" class="form-control" value="{{ settings.hero_role_1 }}" placeholder="DIGITAL" required>
+                    <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Large bold headline (left word)</div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Hero Role Word 2</label>
+                    <input type="text" name="hero_role_2" class="form-control" value="{{ settings.hero_role_2 }}" placeholder="DESIGNER" required>
+                    <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Large bold headline (right word)</div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Hero Subheadline</label>
+                <textarea name="hero_subheadline" rows="2" class="form-control" style="line-height: 1.5;">{{ settings.hero_subheadline }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Short pitch paragraph displayed beneath the role headline</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02. Interactive 3D Card Photos -->
+    <div class="db-card" style="margin-bottom: 24px;">
+        <div class="db-card-header">
+            <div>
+                <div class="db-card-title">02. Hero 3D Card Photos</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                    Central rotating 3D photo card and side showcase photo.
+                </div>
+            </div>
+        </div>
+        <div class="db-card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Front Avatar Image -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Central Front Portrait (Avatar)</label>
+                    <div class="image-upload-box" onclick="document.getElementById('home_avatar_input').click()" style="cursor: pointer; padding: 16px; text-align: center; border: 2px dashed var(--db-border); border-radius: var(--radius-md); background: #121214;">
+                        <div style="margin-bottom: 8px;">
+                            {% if settings.avatar_image %}
+                                <img src="{{ settings.avatar_image.url }}" alt="Front Portrait" style="max-height: 120px; border-radius: 8px; object-fit: cover;">
+                            {% else %}
+                                <img src="/static/images/0WpkDjML9SeFblp0HONUfUfivIs.jpg" alt="Default Front" style="max-height: 120px; border-radius: 8px; opacity: 0.5;">
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--db-accent);">Click to change Front Portrait</div>
+                        <div style="font-size: 0.7rem; color: var(--db-text-muted); margin-top: 2px;">Used in 3D Card Front & Navbar avatar</div>
+                        <input type="file" id="home_avatar_input" name="avatar_image" class="form-control" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Right Side Showcase Image -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Right-Side Showcase Card Photo</label>
+                    <div class="image-upload-box" onclick="document.getElementById('home_services_img_input').click()" style="cursor: pointer; padding: 16px; text-align: center; border: 2px dashed var(--db-border); border-radius: var(--radius-md); background: #121214;">
+                        <div style="margin-bottom: 8px;">
+                            {% if settings.services_image %}
+                                <img src="{{ settings.services_image.url }}" alt="Showcase Photo" style="max-height: 120px; border-radius: 8px; object-fit: cover;">
+                            {% else %}
+                                <img src="/static/images/VRQgkdWsjawSg1qpCm45HfSY1I.jpg" alt="Default Showcase" style="max-height: 120px; border-radius: 8px; opacity: 0.5;">
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--db-accent);">Click to change Showcase Photo</div>
+                        <div style="font-size: 0.7rem; color: var(--db-text-muted); margin-top: 2px;">Shown on 3D Card back & beside "What I Can Do For You"</div>
+                        <input type="file" id="home_services_img_input" name="services_image" class="form-control" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03. What I Can Do For You (Services & Hover Preview) -->
+    <div class="db-card" style="margin-bottom: 24px;">
+        <div class="db-card-header">
+            <div>
+                <div class="db-card-title">03. "WHAT I CAN DO FOR YOU" Section</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                    Subtitle and capability items with hover floating card images.
+                </div>
+            </div>
+            <a href="{% url 'portfolio:dashboard_services' %}" class="btn btn-outline btn-sm">
+                🛠️ Full Services & Hover Manager →
+            </a>
+        </div>
+        <div class="db-card-body">
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label class="form-label">Services Section Subtitle</label>
+                <textarea name="services_subtitle" rows="2" class="form-control" style="line-height: 1.5;">{{ settings.services_subtitle }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Displayed under the "WHAT I CAN DO FOR YOU" header</div>
+            </div>
+
+            <div style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 10px;">Configured Services & Hover Images:</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
+                {% for s in services %}
+                    <div style="padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--db-border); border-radius: var(--radius-md); display: flex; gap: 12px; align-items: center;">
+                        <img src="{{ s.hover_url }}" alt="{{ s.title }}" style="width: 60px; height: 42px; border-radius: 4px; object-fit: cover; border: 1px solid var(--db-border);">
+                        <div style="overflow: hidden; flex: 1;">
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--db-accent);">{{ s.order_num }} {{ s.title }}</div>
+                            <div style="font-size: 0.68rem; color: var(--db-text-muted); margin-top: 2px;">{{ s.description|truncatewords:4 }}</div>
+                        </div>
+                        <a href="{% url 'portfolio:dashboard_service_edit' s.pk %}" class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.7rem;">Edit ✎</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 04. Stats & Metrics Counter -->
+    <div class="db-card" style="margin-bottom: 24px;">
+        <div class="db-card-header">
+            <div>
+                <div class="db-card-title">04. Statistics & Metrics (Home Counters)</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                    Displayed on the statistics cards on the home page.
+                </div>
+            </div>
+        </div>
+        <div class="db-card-body">
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;">
+                <div>
+                    <label class="form-label" style="font-size: 0.75rem;">Experience</label>
+                    <input type="text" name="stat_experience_num" class="form-control" value="{{ settings.stat_experience_num }}">
+                    <input type="text" name="stat_experience_label" class="form-control" value="{{ settings.stat_experience_label }}" style="margin-top: 6px; font-size: 0.72rem;">
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.75rem;">Projects</label>
+                    <input type="text" name="stat_projects_num" class="form-control" value="{{ settings.stat_projects_num }}">
+                    <input type="text" name="stat_projects_label" class="form-control" value="{{ settings.stat_projects_label }}" style="margin-top: 6px; font-size: 0.72rem;">
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.75rem;">Clients</label>
+                    <input type="text" name="stat_clients_num" class="form-control" value="{{ settings.stat_clients_num }}">
+                    <input type="text" name="stat_clients_label" class="form-control" value="{{ settings.stat_clients_label }}" style="margin-top: 6px; font-size: 0.72rem;">
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.75rem;">Satisfaction</label>
+                    <input type="text" name="stat_satisfaction_num" class="form-control" value="{{ settings.stat_satisfaction_num }}">
+                    <input type="text" name="stat_satisfaction_label" class="form-control" value="{{ settings.stat_satisfaction_label }}" style="margin-top: 6px; font-size: 0.72rem;">
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.75rem;">Growth</label>
+                    <input type="text" name="stat_growth_num" class="form-control" value="{{ settings.stat_growth_num }}">
+                    <input type="text" name="stat_growth_label" class="form-control" value="{{ settings.stat_growth_label }}" style="margin-top: 6px; font-size: 0.72rem;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Save Bar for Home Page -->
+    <div style="position: sticky; bottom: 16px; z-index: 100; padding: 14px 24px; background: rgba(18, 18, 20, 0.95); backdrop-filter: blur(12px); border: 1px solid var(--db-accent); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--db-accent); font-weight: 600; font-size: 0.85rem;">Ready to publish?</span>
+            <span style="font-size: 0.78rem; color: var(--db-text-muted);">Changes will immediately reflect on http://127.0.0.1:8000/</span>
+        </div>
+        <button type="submit" class="btn btn-accent" style="padding: 10px 28px; font-size: 0.9rem; font-weight: 700;">
+            ✓ Save Home Page Changes
+        </button>
+    </div>
+</form>
+{% endblock %}

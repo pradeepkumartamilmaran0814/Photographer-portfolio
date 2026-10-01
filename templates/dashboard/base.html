@@ -19,6 +19,7 @@
             </div>
 
             <nav class="sidebar-nav">
+                <!-- Overview -->
                 <a href="{% url 'portfolio:dashboard_index' %}" class="nav-item {% if active_tab == 'overview' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>📊</span>
@@ -26,27 +27,57 @@
                     </div>
                 </a>
 
+                <!-- SECTION 1: PAGE EDITORS (Direct Live Page Alignment) -->
+                <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 1.2px; color: #666; text-transform: uppercase; padding: 14px 16px 6px;">PAGE EDITORS</div>
+
+                <!-- 1. Home Page (http://127.0.0.1:8000/) -->
+                <a href="{% url 'portfolio:dashboard_page_home' %}" class="nav-item {% if active_tab == 'page_home' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>🏠</span>
+                        <span>Home Page</span>
+                    </div>
+                    <span class="badge badge-accent" style="font-size: 0.65rem; padding: 2px 6px; font-family: monospace;">/</span>
+                </a>
+
+                <!-- 2. About Page (http://127.0.0.1:8000/about) -->
+                <a href="{% url 'portfolio:dashboard_page_about' %}" class="nav-item {% if active_tab == 'page_about' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>👤</span>
+                        <span>About Page</span>
+                    </div>
+                    <span class="badge badge-accent" style="font-size: 0.65rem; padding: 2px 6px; font-family: monospace;">/about</span>
+                </a>
+
+                <!-- 3. Projects Page (http://127.0.0.1:8000/projects) -->
                 <a href="{% url 'portfolio:dashboard_projects' %}" class="nav-item {% if active_tab == 'projects' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>📁</span>
                         <span>Projects</span>
                     </div>
+                    <span class="badge badge-accent" style="font-size: 0.65rem; padding: 2px 6px; font-family: monospace;">/projects</span>
                 </a>
 
+                <!-- 4. Blogs Page (http://127.0.0.1:8000/blogs) -->
                 <a href="{% url 'portfolio:dashboard_blogs' %}" class="nav-item {% if active_tab == 'blogs' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>📝</span>
                         <span>Blog Posts</span>
                     </div>
+                    <span class="badge badge-accent" style="font-size: 0.65rem; padding: 2px 6px; font-family: monospace;">/blogs</span>
                 </a>
 
+                <!-- SECTION 2: COMPONENTS & CONTENT -->
+                <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 1.2px; color: #666; text-transform: uppercase; padding: 14px 16px 6px;">COMPONENTS</div>
+
+                <!-- 5. Services & Hover Cards -->
                 <a href="{% url 'portfolio:dashboard_services' %}" class="nav-item {% if active_tab == 'services' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>🛠️</span>
-                        <span>Services</span>
+                        <span>Services & Hover</span>
                     </div>
                 </a>
 
+                <!-- 6. Testimonials -->
                 <a href="{% url 'portfolio:dashboard_testimonials' %}" class="nav-item {% if active_tab == 'testimonials' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>⭐</span>
@@ -54,6 +85,7 @@
                     </div>
                 </a>
 
+                <!-- 7. FAQs -->
                 <a href="{% url 'portfolio:dashboard_faqs' %}" class="nav-item {% if active_tab == 'faqs' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>❓</span>
@@ -61,13 +93,18 @@
                     </div>
                 </a>
 
+                <!-- SECTION 3: GENERAL & INBOX -->
+                <div style="font-size: 0.68rem; font-weight: 700; letter-spacing: 1.2px; color: #666; text-transform: uppercase; padding: 14px 16px 6px;">GENERAL</div>
+
+                <!-- 8. Site Settings & Socials -->
                 <a href="{% url 'portfolio:dashboard_settings' %}" class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>⚙️</span>
-                        <span>Site Settings</span>
+                        <span>Global Settings</span>
                     </div>
                 </a>
 
+                <!-- 9. Client Messages -->
                 <a href="{% url 'portfolio:dashboard_messages' %}" class="nav-item {% if active_tab == 'messages' %}active{% endif %}">
                     <div class="nav-item-left">
                         <span>💬</span>

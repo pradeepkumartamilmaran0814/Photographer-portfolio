@@ -51,6 +51,133 @@ def dashboard_index(request):
 
 
 # ==========================================
+# PAGE-BY-PAGE EDITORS (HOME & ABOUT)
+# ==========================================
+
+def dashboard_page_home(request):
+    settings_obj = SiteSettings.get_solo()
+    services = Service.objects.all()
+    testimonials = Testimonial.objects.all()[:4]
+    faqs = FAQ.objects.all()[:4]
+
+    if request.method == "POST":
+        settings_obj.designer_name = request.POST.get("designer_name", settings_obj.designer_name)
+        settings_obj.hero_role_1 = request.POST.get("hero_role_1", settings_obj.hero_role_1)
+        settings_obj.hero_role_2 = request.POST.get("hero_role_2", settings_obj.hero_role_2)
+        settings_obj.hero_subheadline = request.POST.get("hero_subheadline", settings_obj.hero_subheadline)
+        settings_obj.services_subtitle = request.POST.get("services_subtitle", settings_obj.services_subtitle)
+
+        # Numbers & Metrics
+        settings_obj.stat_experience_num = request.POST.get("stat_experience_num", settings_obj.stat_experience_num)
+        settings_obj.stat_experience_label = request.POST.get("stat_experience_label", settings_obj.stat_experience_label)
+        settings_obj.stat_projects_num = request.POST.get("stat_projects_num", settings_obj.stat_projects_num)
+        settings_obj.stat_projects_label = request.POST.get("stat_projects_label", settings_obj.stat_projects_label)
+        settings_obj.stat_clients_num = request.POST.get("stat_clients_num", settings_obj.stat_clients_num)
+        settings_obj.stat_clients_label = request.POST.get("stat_clients_label", settings_obj.stat_clients_label)
+        settings_obj.stat_satisfaction_num = request.POST.get("stat_satisfaction_num", settings_obj.stat_satisfaction_num)
+        settings_obj.stat_satisfaction_label = request.POST.get("stat_satisfaction_label", settings_obj.stat_satisfaction_label)
+        settings_obj.stat_growth_num = request.POST.get("stat_growth_num", settings_obj.stat_growth_num)
+        settings_obj.stat_growth_label = request.POST.get("stat_growth_label", settings_obj.stat_growth_label)
+
+        if "avatar_image" in request.FILES:
+            settings_obj.avatar_image = request.FILES["avatar_image"]
+
+        if "services_image" in request.FILES:
+            settings_obj.services_image = request.FILES["services_image"]
+
+        settings_obj.save()
+        messages.success(request, "Home Page content updated successfully! Open http://127.0.0.1:8000/ to view changes.")
+        return redirect("portfolio:dashboard_page_home")
+
+    context = {
+        "page_title": "Home Page Editor (/)",
+        "active_tab": "page_home",
+        "settings": settings_obj,
+        "services": services,
+        "testimonials": testimonials,
+        "faqs": faqs,
+    }
+    return render(request, "dashboard/page_home.html", context)
+
+
+def dashboard_page_about(request):
+    settings_obj = SiteSettings.get_solo()
+    experiences = Experience.objects.all()
+
+    if request.method == "POST":
+        settings_obj.about_headline = request.POST.get("about_headline", settings_obj.about_headline)
+        settings_obj.about_subheadline = request.POST.get("about_subheadline", settings_obj.about_subheadline)
+        settings_obj.about_text = request.POST.get("about_text", settings_obj.about_text)
+        settings_obj.about_journey_subtitle = request.POST.get("about_journey_subtitle", settings_obj.about_journey_subtitle)
+
+        if "about_image" in request.FILES:
+            settings_obj.about_image = request.FILES["about_image"]
+
+        if "resume_file" in request.FILES:
+            settings_obj.resume_file = request.FILES["resume_file"]
+
+        settings_obj.save()
+        messages.success(request, "About Page content updated successfully! Open http://127.0.0.1:8000/about to view changes.")
+        return redirect("portfolio:dashboard_page_about")
+
+    context = {
+        "page_title": "About Page Editor (/about)",
+        "active_tab": "page_about",
+        "settings": settings_obj,
+        "experiences": experiences,
+    }
+    return render(request, "dashboard/page_about.html", context)
+
+
+def dashboard_experience_create(request):
+    if request.method == "POST":
+        role = request.POST.get("role", "")
+        company = request.POST.get("company", "")
+        period = request.POST.get("period", "2023 - Present")
+        description = request.POST.get("description", "")
+        order = int(request.POST.get("order", 0) or 0)
+
+        exp = Experience.objects.create(
+            role=role,
+            company=company,
+            period=period,
+            description=description,
+            order=order,
+        )
+        messages.success(request, f"Experience '{exp.role}' at '{exp.company}' added to About Page!")
+    return redirect("portfolio:dashboard_page_about")
+
+
+def dashboard_experience_edit(request, pk):
+    exp = get_object_or_404(Experience, pk=pk)
+    if request.method == "POST":
+        exp.role = request.POST.get("role", exp.role)
+        exp.company = request.POST.get("company", exp.company)
+        exp.period = request.POST.get("period", exp.period)
+        exp.description = request.POST.get("description", exp.description)
+        exp.order = int(request.POST.get("order", exp.order) or 0)
+        exp.save()
+        messages.success(request, f"Experience '{exp.role}' updated!")
+        return redirect("portfolio:dashboard_page_about")
+
+    context = {
+        "page_title": f"Edit Experience - {exp.role}",
+        "active_tab": "page_about",
+        "experience": exp,
+    }
+    return render(request, "dashboard/experience_form.html", context)
+
+
+@require_POST
+def dashboard_experience_delete(request, pk):
+    exp = get_object_or_404(Experience, pk=pk)
+    role = exp.role
+    exp.delete()
+    messages.success(request, f"Experience '{role}' was removed from About Page.")
+    return redirect("portfolio:dashboard_page_about")
+
+
+# ==========================================
 # PROJECTS CRUD
 # ==========================================
 
@@ -91,7 +218,23 @@ def dashboard_project_create(request):
 
         if "cover_image" in request.FILES:
             project.cover_image = request.FILES["cover_image"]
-            project.save()
+        if "problem_image" in request.FILES:
+            project.problem_image = request.FILES["problem_image"]
+        if "solution_image_1" in request.FILES:
+            project.solution_image_1 = request.FILES["solution_image_1"]
+        if "solution_image_2" in request.FILES:
+            project.solution_image_2 = request.FILES["solution_image_2"]
+        if "summary_image_1" in request.FILES:
+            project.summary_image_1 = request.FILES["summary_image_1"]
+        if "summary_image_2" in request.FILES:
+            project.summary_image_2 = request.FILES["summary_image_2"]
+        project.save()
+
+        try:
+            from .framer_sync import sync_project_to_framer
+            sync_project_to_framer(project)
+        except Exception as e:
+            print("Sync error:", e)
 
         messages.success(request, f"Project '{project.title}' created successfully!")
         return redirect("portfolio:dashboard_projects")
@@ -134,7 +277,16 @@ def dashboard_project_edit(request, identifier):
 
         if "cover_image" in request.FILES:
             project.cover_image = request.FILES["cover_image"]
-
+        if "problem_image" in request.FILES:
+            project.problem_image = request.FILES["problem_image"]
+        if "solution_image_1" in request.FILES:
+            project.solution_image_1 = request.FILES["solution_image_1"]
+        if "solution_image_2" in request.FILES:
+            project.solution_image_2 = request.FILES["solution_image_2"]
+        if "summary_image_1" in request.FILES:
+            project.summary_image_1 = request.FILES["summary_image_1"]
+        if "summary_image_2" in request.FILES:
+            project.summary_image_2 = request.FILES["summary_image_2"]
         project.save()
 
         # Direct sync to Framer files without altering any animations

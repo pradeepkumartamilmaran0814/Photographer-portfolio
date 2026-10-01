@@ -1,0 +1,223 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<!-- Top Header Bar with Live Page Link -->
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 18px 24px; background: #121214; border: 1px solid var(--db-border); border-radius: var(--radius-lg);">
+    <div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">👤</span>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0;">About Page Editor</h2>
+            <span class="badge badge-accent" style="font-family: monospace; font-size: 0.75rem;">http://127.0.0.1:8000/about</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 6px;">
+            Manage all biographies, career experiences timeline, profile photo, and downloadable CV for the /about page.
+        </div>
+    </div>
+    <a href="/about/" target="_blank" class="btn btn-accent btn-sm" style="display: flex; align-items: center; gap: 8px; padding: 10px 18px;">
+        <span>🌐 Open Live About Page</span>
+        <span>↗</span>
+    </a>
+</div>
+
+<!-- 1. About Page Content Form -->
+<form method="POST" enctype="multipart/form-data" style="margin-bottom: 32px;">
+    {% csrf_token %}
+
+    <!-- 01. About Bio & Story -->
+    <div class="db-card" style="margin-bottom: 24px;">
+        <div class="db-card-header">
+            <div>
+                <div class="db-card-title">01. About Me Story & Headlines</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                    Displayed in the hero and story sections of the /about page.
+                </div>
+            </div>
+        </div>
+        <div class="db-card-body">
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label class="form-label">Primary Bio Headline</label>
+                <textarea name="about_headline" rows="2" class="form-control" style="line-height: 1.5;">{{ settings.about_headline }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Large intro sentence: e.g. "I'm a digital designer and Framer developer..."</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label class="form-label">Secondary Philosophy & Foundations</label>
+                <textarea name="about_subheadline" rows="3" class="form-control" style="line-height: 1.5;">{{ settings.about_subheadline }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Paragraph describing your foundations, interactive systems, and craft</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label class="form-label">Career Journey Subtitle</label>
+                <textarea name="about_journey_subtitle" rows="2" class="form-control" style="line-height: 1.5;">{{ settings.about_journey_subtitle }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">Displayed under "Discover My Journey in Design"</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Extended Story / Bio Paragraph</label>
+                <textarea name="about_text" rows="3" class="form-control" style="line-height: 1.5;">{{ settings.about_text }}</textarea>
+                <div style="font-size: 0.72rem; color: var(--db-text-muted); margin-top: 4px;">General detailed bio</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02. About Photo & CV Upload -->
+    <div class="db-card" style="margin-bottom: 24px;">
+        <div class="db-card-header">
+            <div>
+                <div class="db-card-title">02. Profile Photo & Downloadable CV / Resume</div>
+                <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                    Portrait photo shown on /about and file downloaded via "Download CV" button.
+                </div>
+            </div>
+        </div>
+        <div class="db-card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- About Profile Photo -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">About Page Portrait Photo</label>
+                    <div class="image-upload-box" onclick="document.getElementById('about_photo_input').click()" style="cursor: pointer; padding: 16px; text-align: center; border: 2px dashed var(--db-border); border-radius: var(--radius-md); background: #121214;">
+                        <div style="margin-bottom: 8px;">
+                            {% if settings.about_image %}
+                                <img src="{{ settings.about_image.url }}" alt="About Portrait" style="max-height: 120px; border-radius: 8px; object-fit: cover;">
+                            {% elif settings.avatar_image %}
+                                <img src="{{ settings.avatar_image.url }}" alt="About Portrait" style="max-height: 120px; border-radius: 8px; object-fit: cover;">
+                            {% else %}
+                                <img src="/static/images/0WpkDjML9SeFblp0HONUfUfivIs.jpg" alt="Default About Photo" style="max-height: 120px; border-radius: 8px; opacity: 0.5;">
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--db-accent);">Click to change About Photo</div>
+                        <div style="font-size: 0.7rem; color: var(--db-text-muted); margin-top: 2px;">JPG, PNG, WEBP</div>
+                        <input type="file" id="about_photo_input" name="about_image" class="form-control" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Downloadable CV / Resume -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Resume / CV File (PDF)</label>
+                    <div style="padding: 18px; border: 1px solid var(--db-border); border-radius: var(--radius-md); background: #121214; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <span style="font-size: 1.5rem;">📄</span>
+                                <div>
+                                    <div style="font-size: 0.85rem; font-weight: 600; color: #fff;">
+                                        {% if settings.resume_file %}
+                                            Current CV Attached
+                                        {% else %}
+                                            No CV File Uploaded Yet
+                                        {% endif %}
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--db-text-muted);">
+                                        {% if settings.resume_file %}
+                                            <a href="{{ settings.resume_file.url }}" target="_blank" style="color: var(--db-accent); text-decoration: underline;">View Current Resume ↗</a>
+                                        {% else %}
+                                            Upload a PDF to enable "Download CV" button
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <input type="file" name="resume_file" class="form-control" accept=".pdf,.doc,.docx" style="font-size: 0.78rem;">
+                            <div style="font-size: 0.68rem; color: var(--db-text-muted); margin-top: 4px;">Select a new PDF file to replace current CV</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Save Bar for About Page -->
+    <div style="position: sticky; bottom: 16px; z-index: 100; padding: 14px 24px; background: rgba(18, 18, 20, 0.95); backdrop-filter: blur(12px); border: 1px solid var(--db-accent); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--db-accent); font-weight: 600; font-size: 0.85rem;">Ready to save About page?</span>
+            <span style="font-size: 0.78rem; color: var(--db-text-muted);">Updates reflect immediately on http://127.0.0.1:8000/about</span>
+        </div>
+        <button type="submit" class="btn btn-accent" style="padding: 10px 28px; font-size: 0.9rem; font-weight: 700;">
+            ✓ Save About Page Changes
+        </button>
+    </div>
+</form>
+
+<!-- 2. Career Experience Timeline ("Discover My Journey in Design") -->
+<div class="db-card">
+    <div class="db-card-header">
+        <div>
+            <div class="db-card-title">03. Career Journey Timeline ("Discover My Journey in Design")</div>
+            <div style="font-size: 0.8rem; color: var(--db-text-muted); margin-top: 4px;">
+                Displayed on the /about page career timeline cards.
+            </div>
+        </div>
+        <button type="button" class="btn btn-accent btn-sm" onclick="document.getElementById('add-experience-box').style.display = document.getElementById('add-experience-box').style.display === 'none' ? 'block' : 'none';">
+            + Add New Experience
+        </button>
+    </div>
+
+    <!-- Quick Add Experience Form -->
+    <div id="add-experience-box" style="display: none; padding: 18px 24px; background: rgba(208, 255, 113, 0.03); border-bottom: 1px solid var(--db-border);">
+        <form action="{% url 'portfolio:dashboard_experience_create' %}" method="POST">
+            {% csrf_token %}
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--db-accent); margin-bottom: 12px;">Add New Career Experience</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 140px; gap: 14px; margin-bottom: 12px;">
+                <div>
+                    <label class="form-label">Job Role / Title</label>
+                    <input type="text" name="role" class="form-control" placeholder="e.g. Lead Photographer / Creative Director" required>
+                </div>
+                <div>
+                    <label class="form-label">Company / Studio</label>
+                    <input type="text" name="company" class="form-control" placeholder="e.g. Studio Aurora" required>
+                </div>
+                <div>
+                    <label class="form-label">Period / Years</label>
+                    <input type="text" name="period" class="form-control" placeholder="2023 - Present" required>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Description (Optional)</label>
+                <input type="text" name="description" class="form-control" placeholder="Short description of your achievements or focus area">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('add-experience-box').style.display='none';">Cancel</button>
+                <button type="submit" class="btn btn-accent btn-sm">+ Save Experience</button>
+            </div>
+        </form>
+    </div>
+
+    <table class="db-table">
+        <thead>
+            <tr>
+                <th style="width: 220px;">Role / Title</th>
+                <th style="width: 200px;">Company / Studio</th>
+                <th style="width: 140px;">Period</th>
+                <th>Description</th>
+                <th style="width: 130px; text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exp in experiences %}
+                <tr>
+                    <td><strong style="color: #fff; font-size: 0.92rem;">{{ exp.role }}</strong></td>
+                    <td><span style="color: var(--db-accent); font-weight: 600;">{{ exp.company }}</span></td>
+                    <td><span style="color: var(--db-text-muted); font-size: 0.85rem;">{{ exp.period }}</span></td>
+                    <td><div style="font-size: 0.8rem; color: var(--db-text-muted);">{{ exp.description|default:"—" }}</div></td>
+                    <td style="text-align: right;">
+                        <div style="display: inline-flex; gap: 8px;">
+                            <a href="{% url 'portfolio:dashboard_experience_edit' exp.pk %}" class="btn btn-outline btn-sm">Edit ✎</a>
+                            <form action="{% url 'portfolio:dashboard_experience_delete' exp.pk %}" method="POST" style="display: inline;" onsubmit="return confirm('Remove this experience entry from About page?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">✕</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 36px; color: var(--db-text-muted);">
+                        No experiences listed yet. Click "+ Add New Experience" to add one.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
