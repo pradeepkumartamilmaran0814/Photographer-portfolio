@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -127,7 +128,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Created {len(testimonials_data)} Testimonials"))
 
         # 7. Projects from extracted_projects.json
-        projects_file = os.path.join(r"d:\ASAP\design-port", "extracted_projects.json")
+        projects_file = os.path.join(settings.BASE_DIR, "extracted_projects.json")
         project_cat_map = {
             "black-geometric-prisms": "Branding",
             "innovatetech-identity-rollout": "Branding",
@@ -184,7 +185,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"Synced {len(projects_list)} Projects with stable IDs"))
 
         # 8. Blogs from extracted_blogs.json
-        blogs_file = os.path.join(r"d:\ASAP\design-port", "extracted_blogs.json")
+        blogs_file = os.path.join(settings.BASE_DIR, "extracted_blogs.json")
         blog_cat_map = {
             "5-design-trends-that-will-define-2024": "Insights",
             "mastering-ui-ux-design-key-principles-for-success": "Insights",
